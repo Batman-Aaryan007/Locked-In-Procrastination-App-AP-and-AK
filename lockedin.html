@@ -412,8 +412,10 @@
 
   async function loadStreak(){
     try{
-      const r = await window.storage.get('streak-data');
-      const data = JSON.parse(r.value);
+      const value = window.storage
+        ? (await window.storage.get('streak-data')).value
+        : localStorage.getItem('streak-data');
+      const data = JSON.parse(value);
       state.streak = data.streak || 0;
       state.todayDone = data.lastDate === todayKey();
       if(data.lastDate && data.lastDate !== todayKey()){
@@ -432,7 +434,9 @@
     state.streak += 1;
     state.todayDone = true;
     try{
-      await window.storage.set('streak-data', JSON.stringify({ streak: state.streak, lastDate: todayKey() }));
+      const value = JSON.stringify({ streak: state.streak, lastDate: todayKey() });
+      if(window.storage) await window.storage.set('streak-data', value);
+      else localStorage.setItem('streak-data', value);
     }catch(e){ /* non-fatal */ }
   }
 
