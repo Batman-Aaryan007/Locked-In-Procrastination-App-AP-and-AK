@@ -1,0 +1,945 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<meta name="theme-color" content="#121016">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="lockedin">
+<title>lockedin</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+<style>
+  :root{
+    --bg: #121016;
+    --surface: #1C1922;
+    --surface-2: #262230;
+    --line: #322D3D;
+    --text: #F5F3F7;
+    --muted: #948FA3;
+    --lime: #C8FF4D;
+    --lime-dim: #7C9C2E;
+    --coral: #FF5A7A;
+    --violet: #8A7CFF;
+    --font-display: 'Space Grotesk', sans-serif;
+    --font-body: 'Inter', sans-serif;
+  }
+  *{ box-sizing: border-box; margin:0; padding:0; -webkit-tap-highlight-color: transparent; }
+  html, body{
+    background: var(--bg);
+    overscroll-behavior-y: none;
+    touch-action: manipulation;
+    height: 100%;
+  }
+  #app{
+    font-family: var(--font-body);
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    min-height: 100dvh;
+    width: 100%;
+    display:flex;
+    justify-content:center;
+    padding: calc(env(safe-area-inset-top, 0px) + 24px) 16px calc(env(safe-area-inset-bottom, 0px) + 40px);
+    position: relative;
+    overflow-x: hidden;
+  }
+  .shell{ width:100%; max-width: 460px; }
+  button{ touch-action: manipulation; }
+  button:focus-visible, input:focus-visible, a:focus-visible{
+    outline: 3px solid rgba(200,255,77,.35); outline-offset:2px;
+  }
+
+  /* Header */
+  .topbar{
+    display:flex; align-items:center; justify-content:space-between;
+    margin-bottom: 28px;
+  }
+  .wordmark{
+    font-family: var(--font-display); font-weight:700; font-size: 22px;
+    letter-spacing: -0.02em;
+  }
+  .wordmark span{ color: var(--lime); }
+  .streak-pill{
+    display:flex; align-items:center; gap:6px;
+    background: var(--surface); border:1px solid var(--line);
+    padding: 7px 12px 7px 10px; border-radius: 999px;
+    font-family: var(--font-display); font-weight:700; font-size:14px;
+  }
+  .top-actions{ display:flex; align-items:center; gap:8px; }
+  .account-btn{
+    width:36px; height:36px; border-radius:50%; border:1px solid var(--line);
+    background:var(--surface); color:var(--text); cursor:pointer;
+    font-family:var(--font-display); font-weight:700; font-size:13px;
+  }
+  .flame{ font-size:15px; filter: drop-shadow(0 0 6px rgba(255,90,60,.5)); }
+
+  /* Generic card */
+  .card{
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 20px;
+    padding: 22px;
+  }
+
+  h1.headline{
+    font-family: var(--font-display); font-weight:700;
+    font-size: 30px; line-height:1.1; letter-spacing:-0.02em;
+    margin-bottom: 6px;
+  }
+  .sub{ color: var(--muted); font-size:14px; margin-bottom:22px; line-height:1.5; }
+
+  /* Setup screen */
+  .task-row{
+    display:flex; align-items:center; gap:10px;
+    background: var(--surface-2);
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    padding: 10px 12px;
+    margin-bottom: 10px;
+  }
+  .task-num{
+    font-family: var(--font-display); font-weight:700; font-size:13px;
+    color: var(--bg); background: var(--lime);
+    width:24px; height:24px; border-radius:8px;
+    display:flex; align-items:center; justify-content:center;
+    flex-shrink:0;
+  }
+  .task-name{ flex:1; font-size:14px; font-weight:500; }
+  .task-mins{
+    font-family: var(--font-display); font-weight:700; font-size:13px;
+    color: var(--muted); white-space:nowrap;
+  }
+  .task-del{
+    background:none; border:none; color: var(--muted); cursor:pointer;
+    font-size:16px; line-height:1; padding:4px;
+  }
+  .task-del:hover{ color: var(--coral); }
+
+  .empty-state{
+    text-align:center; padding: 28px 10px;
+    color: var(--muted); font-size:13.5px;
+  }
+
+  .add-form{
+    display:flex; gap:8px; margin-top: 14px;
+  }
+  input[type="text"], input[type="number"], input[type="email"], input[type="tel"], input[type="password"]{
+    font-family: var(--font-body);
+    background: var(--surface-2);
+    border: 1px solid var(--line);
+    color: var(--text);
+    border-radius: 12px;
+    padding: 13px 12px;
+    font-size: 16px;
+    outline: none;
+    -webkit-appearance: none;
+    appearance: none;
+  }
+  input[type="text"]{ flex:1; min-width:0; }
+  input[type="number"]{ width: 68px; text-align:center; }
+  input::placeholder{ color: #6B6678; }
+  input:focus{ border-color: var(--lime); }
+
+  .btn{
+    font-family: var(--font-display); font-weight:700;
+    font-size: 14px; letter-spacing: 0.01em;
+    border-radius: 12px; border:none; cursor:pointer;
+    padding: 13px 18px;
+    transition: transform .12s ease, opacity .12s ease;
+  }
+  .btn:active{ transform: scale(0.97); }
+  .btn-add{
+    background: var(--surface); border:1px solid var(--line);
+    color: var(--text); padding: 11px 16px;
+  }
+  .btn-primary{
+    background: var(--lime); color: #14150F;
+    width:100%; padding:16px; font-size:15px; margin-top: 18px;
+  }
+  .btn-primary:disabled{ opacity:.35; cursor:not-allowed; }
+  .btn-ghost{
+    background:transparent; border:1px solid var(--line); color: var(--text);
+    width:100%; padding:14px; margin-top:10px;
+  }
+  .total-line{
+    display:flex; justify-content:space-between; color: var(--muted);
+    font-size:12.5px; margin-top:14px; padding-top:14px; border-top:1px dashed var(--line);
+  }
+  .total-line b{ color: var(--text); font-family: var(--font-display); }
+
+  /* Ready screen */
+  .ready-wrap{ text-align:center; }
+  .up-next-label{
+    text-transform:uppercase; letter-spacing:.14em; font-size:11px;
+    color: var(--lime-dim); font-weight:700; margin-bottom:10px;
+  }
+  .up-next-name{
+    font-family: var(--font-display); font-weight:700; font-size: 26px;
+    margin-bottom: 4px; line-height:1.15;
+  }
+  .up-next-mins{ color: var(--muted); font-size: 14px; margin-bottom: 26px; }
+  .queue-strip{
+    display:flex; gap:6px; justify-content:center; flex-wrap:wrap; margin-top:22px;
+  }
+  .queue-chip{
+    font-size:11px; font-family: var(--font-display); font-weight:700;
+    padding:6px 10px; border-radius:999px; border:1px solid var(--line);
+    color: var(--muted);
+  }
+  .queue-chip.done{ background: var(--lime); color:#14150F; border-color: var(--lime); }
+  .queue-chip.current{ background: var(--surface-2); color: var(--text); border-color: var(--lime); }
+
+  /* Timer screen */
+  .timer-wrap{ display:flex; flex-direction:column; align-items:center; }
+  .ring-box{ position:relative; width:240px; height:240px; margin: 8px 0 22px; }
+  .ring-box svg{ transform: rotate(-90deg); width:100%; height:100%; }
+  .ring-bg{ fill:none; stroke: var(--surface-2); stroke-width:12; }
+  .ring-fg{ fill:none; stroke: var(--lime); stroke-width:12; stroke-linecap:round;
+    transition: stroke-dashoffset 1s linear, stroke .4s ease; }
+  .ring-center{
+    position:absolute; inset:0; display:flex; flex-direction:column;
+    align-items:center; justify-content:center;
+  }
+  .ring-time{ font-family: var(--font-display); font-weight:700; font-size:40px; letter-spacing:-0.02em; }
+  .ring-task{ font-size:12.5px; color: var(--muted); margin-top:4px; max-width:150px; text-align:center; }
+
+  .overtime-tag{
+    font-family: var(--font-display); font-weight:700; font-size:12px;
+    color: var(--coral); text-transform:uppercase; letter-spacing:.08em;
+    margin-bottom: 6px;
+  }
+
+  .toast{
+    position: fixed; top: 18px; left:50%; transform: translateX(-50%) translateY(-140%);
+    background: var(--coral); color: #1A0A0E;
+    font-family: var(--font-display); font-weight:700; font-size:13.5px;
+    padding: 12px 18px; border-radius: 12px;
+    box-shadow: 0 10px 30px rgba(0,0,0,.4);
+    opacity:0; visibility:hidden;
+    transition: transform .35s cubic-bezier(.2,.9,.3,1.3), opacity .2s ease;
+    z-index: 50; white-space:nowrap;
+  }
+  .toast.show{ transform: translateX(-50%) translateY(0); opacity:1; visibility:visible; }
+
+  /* Modal */
+  .modal-veil{
+    position: fixed; inset:0; background: rgba(8,7,11,0.72);
+    backdrop-filter: blur(2px);
+    display:flex; align-items:flex-end; justify-content:center;
+    opacity:0; pointer-events:none; transition: opacity .2s ease;
+    z-index: 60; padding: 0 16px;
+  }
+  .modal-veil.show{ opacity:1; pointer-events:auto; }
+  .modal-sheet{
+    background: var(--surface); border:1px solid var(--line);
+    border-radius: 22px 22px 0 0;
+    width:100%; max-width: 460px;
+    padding: 26px 22px calc(env(safe-area-inset-bottom, 0px) + 30px);
+    transform: translateY(24px);
+    transition: transform .28s cubic-bezier(.2,.9,.3,1.2);
+  }
+  .modal-veil.show .modal-sheet{ transform: translateY(0); }
+  .modal-title{ font-family: var(--font-display); font-weight:700; font-size:20px; margin-bottom:4px; }
+  .modal-sub{ color: var(--muted); font-size:13.5px; margin-bottom:18px; }
+  .modal-btn{
+    width:100%; text-align:left;
+    background: var(--surface-2); border:1px solid var(--line);
+    color: var(--text); border-radius:14px; padding:15px 16px;
+    font-family: var(--font-body); font-weight:600; font-size:14.5px;
+    margin-bottom:10px; cursor:pointer; display:flex; justify-content:space-between; align-items:center;
+  }
+  .modal-btn:active{ transform: scale(0.98); }
+  .modal-btn .mb-tag{ font-family: var(--font-display); color: var(--muted); font-size:12px; }
+  .modal-btn.done{ background: var(--lime); color:#14150F; border-color: var(--lime); }
+  .modal-btn.done .mb-tag{ color: rgba(20,21,15,.6); }
+  .modal-btn.need{ }
+
+  /* Complete screen */
+  .complete-wrap{ text-align:center; padding: 10px 0; }
+  .complete-emoji{ font-size:52px; margin-bottom: 10px; }
+  .complete-stats{
+    display:flex; gap:10px; margin-top:22px;
+  }
+  .stat-box{
+    flex:1; background: var(--surface-2); border:1px solid var(--line);
+    border-radius:14px; padding:14px 8px;
+  }
+  .stat-num{ font-family: var(--font-display); font-weight:700; font-size:20px; }
+  .stat-label{ font-size:10.5px; color: var(--muted); text-transform:uppercase; letter-spacing:.06em; margin-top:2px; }
+
+  .footnote{ text-align:center; color:#5D5868; font-size:11px; margin-top:22px; line-height:1.6; }
+
+  /* Authentication */
+  .auth-shell{ width:100%; max-width:460px; }
+  .auth-glow{
+    position:fixed; width:260px; height:260px; top:-150px; left:50%;
+    transform:translateX(-50%); border-radius:50%; pointer-events:none;
+    background:radial-gradient(circle, rgba(138,124,255,.24), rgba(255,90,122,.08) 48%, transparent 72%);
+  }
+  .auth-card{ position:relative; overflow:hidden; }
+  .auth-card::before{
+    content:""; position:absolute; inset:0 0 auto; height:3px;
+    background:linear-gradient(90deg, var(--violet), var(--coral), var(--lime));
+  }
+  .auth-heading{ margin-bottom:4px; }
+  .auth-form{ display:grid; gap:15px; }
+  .field{ display:grid; gap:7px; }
+  .field label{ font-size:12.5px; font-weight:600; color:#D7D3DE; }
+  .field input{ width:100%; }
+  .field.has-error input{ border-color:var(--coral); }
+  .field-error{ min-height:16px; color:var(--coral); font-size:11.5px; line-height:1.35; }
+  .password-wrap{ position:relative; }
+  .password-wrap input{ padding-right:58px; }
+  .password-toggle{
+    position:absolute; right:7px; top:50%; transform:translateY(-50%);
+    border:0; background:transparent; color:var(--muted); padding:8px;
+    font:600 11px var(--font-body); cursor:pointer;
+  }
+  .form-section-title{
+    font:700 12px var(--font-display); color:var(--muted); text-transform:uppercase;
+    letter-spacing:.1em; margin-top:5px;
+  }
+  .partner-panel{
+    background:linear-gradient(145deg, rgba(138,124,255,.10), rgba(255,90,122,.06));
+    border:1px solid rgba(138,124,255,.28); border-radius:16px; padding:16px;
+    display:grid; gap:13px;
+  }
+  .helper{ color:var(--muted); font-size:11.5px; line-height:1.5; }
+  .consent-row{ display:flex; align-items:flex-start; gap:10px; cursor:pointer; font-size:12px; line-height:1.45; }
+  .consent-row input{ width:18px; height:18px; flex:0 0 auto; accent-color:var(--lime); margin-top:1px; }
+  .auth-submit{ margin-top:3px; }
+  .auth-links{ text-align:center; margin-top:18px; color:var(--muted); font-size:12.5px; line-height:1.8; }
+  .link-btn{ border:0; background:transparent; color:var(--lime); font:600 12.5px var(--font-body); cursor:pointer; padding:3px; }
+  .forgot-row{ text-align:right; margin-top:-7px; }
+  .form-status{ color:var(--coral); font-size:12px; line-height:1.45; text-align:center; min-height:17px; }
+  .profile-list{ display:grid; gap:0; margin-top:6px; }
+  .profile-row{ padding:14px 0; border-bottom:1px solid var(--line); }
+  .profile-row:last-child{ border-bottom:0; }
+  .profile-label{ color:var(--muted); font-size:11px; text-transform:uppercase; letter-spacing:.08em; }
+  .profile-value{ margin-top:4px; font-size:14px; overflow-wrap:anywhere; }
+  @media (min-width:700px){
+    #app{ align-items:flex-start; padding-top:48px; }
+    .auth-card{ padding:28px; }
+  }
+</style>
+</head>
+<body>
+<div id="app"><div class="shell" id="root"></div></div>
+<div class="toast" id="toast"></div>
+<div class="modal-veil" id="modalVeil"><div class="modal-sheet" id="modalSheet"></div></div>
+
+<script>
+(function(){
+  const root = document.getElementById('root');
+  const toastEl = document.getElementById('toast');
+  const veil = document.getElementById('modalVeil');
+  const sheet = document.getElementById('modalSheet');
+
+  const AUTH_ACCOUNT_KEY = 'lockedin-auth-account-v1';
+  const AUTH_SESSION_KEY = 'lockedin-auth-session-v1';
+  let auth = { screen:'login', user:null };
+
+  let state = {
+    screen: 'setup',       // setup | ready | running | overtime | complete
+    tasks: [],             // {id, name, mins, status: pending|active|done}
+    currentIndex: 0,
+    remainingSec: 0,
+    totalSec: 0,
+    timerId: null,
+    warned5: false,
+    streak: 0,
+    todayDone: false
+  };
+
+  let idSeed = 1;
+
+  // Local prototype adapter. Replace these methods with backend API calls for production auth.
+  const authStore = {
+    getAccount(){
+      try{ return JSON.parse(localStorage.getItem(AUTH_ACCOUNT_KEY)); }catch(e){ return null; }
+    },
+    saveAccount(account){ localStorage.setItem(AUTH_ACCOUNT_KEY, JSON.stringify(account)); },
+    hasSession(){ return localStorage.getItem(AUTH_SESSION_KEY) === 'active'; },
+    startSession(){ localStorage.setItem(AUTH_SESSION_KEY, 'active'); },
+    endSession(){ localStorage.removeItem(AUTH_SESSION_KEY); }
+  };
+
+  function bytesToBase64(bytes){
+    let value = '';
+    bytes.forEach(byte => value += String.fromCharCode(byte));
+    return btoa(value);
+  }
+
+  async function hashPassword(password, saltBase64){
+    if(!window.crypto || !window.crypto.subtle) throw new Error('Secure password hashing is unavailable in this browser.');
+    const encoder = new TextEncoder();
+    const salt = saltBase64
+      ? Uint8Array.from(atob(saltBase64), char => char.charCodeAt(0))
+      : crypto.getRandomValues(new Uint8Array(16));
+    const key = await crypto.subtle.importKey('raw', encoder.encode(password), 'PBKDF2', false, ['deriveBits']);
+    const bits = await crypto.subtle.deriveBits({ name:'PBKDF2', salt, iterations:120000, hash:'SHA-256' }, key, 256);
+    return { salt:bytesToBase64(salt), hash:bytesToBase64(new Uint8Array(bits)) };
+  }
+
+  function currentProfile(){
+    const account = authStore.getAccount();
+    return account ? account.profile : null;
+  }
+
+  function appHeader(){
+    const initial = auth.user && auth.user.fullName ? auth.user.fullName.charAt(0).toUpperCase() : 'A';
+    return `<div class="topbar">
+      <div class="wordmark">lock<span>in</span></div>
+      <div class="top-actions">
+        <div class="streak-pill"><span class="flame">🔥</span>${state.streak}</div>
+        <button class="account-btn" type="button" data-profile aria-label="Open account profile">${escapeHtml(initial)}</button>
+      </div>
+    </div>`;
+  }
+
+  function bindProfileButton(){
+    const button = document.querySelector('[data-profile]');
+    if(button) button.onclick = renderProfile;
+  }
+
+  // ---------- storage (streak) ----------
+  const todayKey = () => new Date().toISOString().slice(0,10);
+
+  async function loadStreak(){
+    try{
+      const r = await window.storage.get('streak-data');
+      const data = JSON.parse(r.value);
+      state.streak = data.streak || 0;
+      state.todayDone = data.lastDate === todayKey();
+      if(data.lastDate && data.lastDate !== todayKey()){
+        const last = new Date(data.lastDate);
+        const diffDays = Math.round((new Date(todayKey()) - last) / 86400000);
+        if(diffDays > 1){ state.streak = 0; }
+      }
+    }catch(e){
+      state.streak = 0; state.todayDone = false;
+    }
+    render();
+  }
+
+  async function markTodayComplete(){
+    if(state.todayDone) return;
+    state.streak += 1;
+    state.todayDone = true;
+    try{
+      await window.storage.set('streak-data', JSON.stringify({ streak: state.streak, lastDate: todayKey() }));
+    }catch(e){ /* non-fatal */ }
+  }
+
+  // ---------- helpers ----------
+  function fmt(sec){
+    const m = Math.floor(Math.abs(sec)/60);
+    const s = Math.abs(sec)%60;
+    return (sec<0?'-':'') + String(m).padStart(2,'0')+':'+String(s).padStart(2,'0');
+  }
+
+  function showToast(msg){
+    toastEl.textContent = msg;
+    toastEl.classList.add('show');
+    setTimeout(()=> toastEl.classList.remove('show'), 3200);
+  }
+
+  function openModal(html){
+    sheet.innerHTML = html;
+    veil.classList.add('show');
+  }
+  function closeModal(){
+    veil.classList.remove('show');
+  }
+  veil.addEventListener('click', (e)=>{ if(e.target===veil){ /* prevent accidental dismiss during active timeup flow */ } });
+
+  // ---------- authentication ----------
+  function field(name, label, type, autocomplete, placeholder, extra=''){
+    return `<div class="field" data-field="${name}">
+      <label for="${name}">${label}</label>
+      ${type === 'password' ? `<div class="password-wrap"><input id="${name}" name="${name}" type="password" autocomplete="${autocomplete}" placeholder="${placeholder}" ${extra}><button class="password-toggle" type="button" data-toggle-password="${name}" aria-label="Show ${label.toLowerCase()}">Show</button></div>` : `<input id="${name}" name="${name}" type="${type}" autocomplete="${autocomplete}" placeholder="${placeholder}" ${extra}>`}
+      <div class="field-error" id="${name}Error" aria-live="polite"></div>
+    </div>`;
+  }
+
+  function authFrame(content){
+    root.innerHTML = `<div class="auth-glow"></div><div class="auth-shell">
+      <div class="topbar"><div class="wordmark">lock<span>in</span></div></div>
+      <div class="card auth-card">${content}</div>
+    </div>`;
+  }
+
+  function bindPasswordToggles(){
+    document.querySelectorAll('[data-toggle-password]').forEach(button => {
+      button.onclick = () => {
+        const input = document.getElementById(button.dataset.togglePassword);
+        const reveal = input.type === 'password';
+        input.type = reveal ? 'text' : 'password';
+        button.textContent = reveal ? 'Hide' : 'Show';
+        button.setAttribute('aria-label', `${reveal ? 'Hide' : 'Show'} ${input.labels[0].textContent.toLowerCase()}`);
+      };
+    });
+  }
+
+  function setFieldError(name, message){
+    const wrap = document.querySelector(`[data-field="${name}"]`);
+    const error = document.getElementById(`${name}Error`);
+    if(wrap) wrap.classList.toggle('has-error', Boolean(message));
+    if(error) error.textContent = message || '';
+    const input = document.getElementById(name);
+    if(input) input.setAttribute('aria-invalid', message ? 'true' : 'false');
+  }
+
+  function clearErrors(form){
+    form.querySelectorAll('.field-error').forEach(error => error.textContent = '');
+    form.querySelectorAll('.field').forEach(item => item.classList.remove('has-error'));
+    form.querySelectorAll('[aria-invalid]').forEach(input => input.setAttribute('aria-invalid', 'false'));
+  }
+
+  function normalizePhone(value){ return value.replace(/\D/g, ''); }
+  function formatPhone(value){
+    const digits = normalizePhone(value).slice(0, 10);
+    if(digits.length < 4) return digits;
+    if(digits.length < 7) return `(${digits.slice(0,3)}) ${digits.slice(3)}`;
+    return `(${digits.slice(0,3)}) ${digits.slice(3,6)}-${digits.slice(6)}`;
+  }
+  function validEmail(value){ return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value); }
+  function validPhone(value){ return normalizePhone(value).length === 10; }
+
+  function renderLogin(){
+    auth.screen = 'login';
+    authFrame(`
+      <h1 class="headline auth-heading">Ready to lock in?</h1>
+      <div class="sub">Sign in and start making progress.</div>
+      <form class="auth-form" id="loginForm" novalidate>
+        ${field('loginEmail','Email address','email','email','you@example.com','required')}
+        ${field('loginPassword','Password','password','current-password','Your password','required')}
+        <div class="forgot-row"><button class="link-btn" type="button" id="forgotBtn">Forgot password?</button></div>
+        <div class="form-status" id="loginStatus" role="alert"></div>
+        <button class="btn btn-primary auth-submit" type="submit">Log in</button>
+      </form>
+      <div class="auth-links">Don't have an account? <button class="link-btn" type="button" id="showSignup">Sign up</button></div>
+    `);
+    bindPasswordToggles();
+    document.getElementById('showSignup').onclick = renderSignup;
+    document.getElementById('forgotBtn').onclick = ()=>{
+      document.getElementById('loginStatus').textContent = 'Password reset requires the production authentication service.';
+    };
+    document.getElementById('loginForm').onsubmit = handleLogin;
+  }
+
+  function renderSignup(){
+    auth.screen = 'signup';
+    authFrame(`
+      <h1 class="headline auth-heading">Create your account</h1>
+      <div class="sub">A minute now. More focused days ahead.</div>
+      <form class="auth-form" id="signupForm" novalidate>
+        <div class="form-section-title">Student information</div>
+        ${field('fullName','Full name','text','name','Your name','required maxlength="80"')}
+        ${field('email','Email address','email','email','you@example.com','required')}
+        ${field('phoneNumber','Mobile phone number','tel','tel','(555) 123-4567','required inputmode="tel"')}
+        <div class="partner-panel">
+          <div><div class="form-section-title" style="margin-top:0;color:var(--text)">Accountability partner</div><div class="helper" style="margin-top:5px">Choose a parent, guardian, mentor, sibling, or someone you trust to help keep you accountable.</div></div>
+          ${field('partnerPhone','Trusted accountability partner’s phone number','tel','tel','(555) 987-6543','required inputmode="tel"')}
+          <div class="helper">This number may eventually receive accountability notifications you choose to enable. We’ll only use it for those features.</div>
+          <label class="consent-row"><input id="partnerConsent" type="checkbox" required><span>I confirm that this person knows I am adding them as my accountability partner.</span></label>
+          <div class="field-error" id="partnerConsentError" aria-live="polite"></div>
+        </div>
+        <div class="form-section-title">Account security</div>
+        ${field('password','Password','password','new-password','At least 8 characters','required minlength="8"')}
+        ${field('confirmPassword','Confirm password','password','new-password','Enter it again','required')}
+        <div class="form-status" id="signupStatus" role="alert"></div>
+        <button class="btn btn-primary auth-submit" type="submit">Create account</button>
+      </form>
+      <div class="auth-links">Already have an account? <button class="link-btn" type="button" id="showLogin">Log in</button></div>
+    `);
+    bindPasswordToggles();
+    ['phoneNumber','partnerPhone'].forEach(id => {
+      document.getElementById(id).addEventListener('input', e => e.target.value = formatPhone(e.target.value));
+    });
+    document.getElementById('showLogin').onclick = renderLogin;
+    document.getElementById('signupForm').onsubmit = handleSignup;
+  }
+
+  async function handleSignup(event){
+    event.preventDefault();
+    const form = event.currentTarget;
+    clearErrors(form);
+    document.getElementById('partnerConsentError').textContent = '';
+    document.getElementById('signupStatus').textContent = '';
+    const values = Object.fromEntries(new FormData(form));
+    const consent = document.getElementById('partnerConsent').checked;
+    let valid = true;
+    const errors = {};
+    if(!values.fullName.trim()) errors.fullName = 'Please enter your name.';
+    else if(values.fullName.trim().length > 80) errors.fullName = 'Please keep your name under 80 characters.';
+    if(!validEmail(values.email.trim())) errors.email = 'Enter a valid email address.';
+    if(!validPhone(values.phoneNumber)) errors.phoneNumber = 'Enter a 10-digit phone number.';
+    if(!validPhone(values.partnerPhone)) errors.partnerPhone = 'Enter a 10-digit phone number.';
+    else if(normalizePhone(values.partnerPhone) === normalizePhone(values.phoneNumber)) errors.partnerPhone = 'Use a different number from your own.';
+    if(values.password.length < 8) errors.password = 'Use at least 8 characters.';
+    if(values.confirmPassword !== values.password) errors.confirmPassword = 'Passwords don’t match yet.';
+    Object.entries(errors).forEach(([name,message]) => { valid = false; setFieldError(name,message); });
+    if(!consent){ valid = false; document.getElementById('partnerConsentError').textContent = 'Please confirm your partner knows.'; }
+    if(!valid){ form.querySelector('[aria-invalid="true"]')?.focus(); return; }
+    const existing = authStore.getAccount();
+    if(existing && existing.profile.email.toLowerCase() === values.email.trim().toLowerCase()){
+      setFieldError('email','An account already exists for this email.'); return;
+    }
+    const submit = form.querySelector('[type="submit"]');
+    submit.disabled = true; submit.textContent = 'Creating account…';
+    try{
+      const credential = await hashPassword(values.password);
+      const profile = {
+        fullName:values.fullName.trim(), email:values.email.trim().toLowerCase(),
+        phoneNumber:formatPhone(values.phoneNumber), accountabilityPartnerPhone:formatPhone(values.partnerPhone),
+        createdAt:new Date().toISOString()
+      };
+      authStore.saveAccount({ profile, credential });
+      authStore.startSession();
+      auth.user = profile;
+      render();
+    }catch(error){
+      document.getElementById('signupStatus').textContent = error.message || 'Could not create your account.';
+      submit.disabled = false; submit.textContent = 'Create account';
+    }
+  }
+
+  async function handleLogin(event){
+    event.preventDefault();
+    const form = event.currentTarget;
+    clearErrors(form);
+    const email = document.getElementById('loginEmail').value.trim().toLowerCase();
+    const password = document.getElementById('loginPassword').value;
+    if(!validEmail(email)) setFieldError('loginEmail','Enter a valid email address.');
+    if(!password) setFieldError('loginPassword','Enter your password.');
+    if(!validEmail(email) || !password) return;
+    const account = authStore.getAccount();
+    const status = document.getElementById('loginStatus');
+    if(!account || account.profile.email.toLowerCase() !== email){ status.textContent = 'Email or password is incorrect.'; return; }
+    const submit = form.querySelector('[type="submit"]');
+    submit.disabled = true; submit.textContent = 'Logging in…';
+    try{
+      const candidate = await hashPassword(password, account.credential.salt);
+      if(candidate.hash !== account.credential.hash){ status.textContent = 'Email or password is incorrect.'; submit.disabled=false; submit.textContent='Log in'; return; }
+      authStore.startSession(); auth.user = account.profile; render();
+    }catch(error){ status.textContent = error.message || 'Could not log in.'; submit.disabled=false; submit.textContent='Log in'; }
+  }
+
+  function renderProfile(){
+    clearInterval(state.timerId);
+    const profile = auth.user;
+    auth.screen = 'profile';
+    authFrame(`
+      <h1 class="headline auth-heading">Your account</h1>
+      <div class="sub">The details keeping your lockin experience connected.</div>
+      <div class="profile-list">
+        <div class="profile-row"><div class="profile-label">Name</div><div class="profile-value">${escapeHtml(profile.fullName)}</div></div>
+        <div class="profile-row"><div class="profile-label">Email</div><div class="profile-value">${escapeHtml(profile.email)}</div></div>
+        <div class="profile-row"><div class="profile-label">Phone number</div><div class="profile-value">${escapeHtml(profile.phoneNumber)}</div></div>
+        <div class="profile-row"><div class="profile-label">Accountability partner</div><div class="profile-value">${escapeHtml(profile.accountabilityPartnerPhone)}</div></div>
+      </div>
+      <button class="btn btn-primary" type="button" id="backToApp">Back to lockin</button>
+      <button class="btn btn-ghost" type="button" id="logoutBtn">Log out</button>
+    `);
+    document.getElementById('backToApp').onclick = ()=>{ auth.screen = 'app'; render(); if(state.screen==='running') state.timerId=setInterval(tick,1000); };
+    document.getElementById('logoutBtn').onclick = ()=>{
+      clearInterval(state.timerId); closeModal(); authStore.endSession(); auth.user=null; renderLogin();
+    };
+  }
+
+  // ---------- setup screen ----------
+  function renderSetup(){
+    const totalMins = state.tasks.reduce((a,t)=>a+t.mins,0);
+    root.innerHTML = `
+      ${appHeader()}
+      <h1 class="headline">What's on deck today?</h1>
+      <div class="sub">Add your tasks in order, give each one a timebox, then lock in.</div>
+      <div class="card">
+        <div id="taskList">
+          ${state.tasks.length ? state.tasks.map((t,i)=>`
+            <div class="task-row">
+              <div class="task-num">${i+1}</div>
+              <div class="task-name">${escapeHtml(t.name)}</div>
+              <div class="task-mins">${t.mins} min</div>
+              <button class="task-del" data-del="${t.id}">✕</button>
+            </div>
+          `).join('') : `<div class="empty-state">No tasks yet — add your first one below 👇</div>`}
+        </div>
+        <div class="add-form">
+          <input type="text" id="nameInput" placeholder="Task name" maxlength="60">
+          <input type="number" id="minsInput" placeholder="Min" min="1" max="240">
+          <button class="btn btn-add" id="addBtn">Add</button>
+        </div>
+        ${state.tasks.length ? `<div class="total-line"><span>Total focus time</span><b>${totalMins} min</b></div>` : ''}
+        <button class="btn btn-primary" id="lockInBtn" ${state.tasks.length===0?'disabled':''}>Lock in & start</button>
+      </div>
+      <div class="footnote">You'll get a heads-up 5 min before each timebox ends.</div>
+    `;
+
+    document.getElementById('addBtn').onclick = addTask;
+    document.getElementById('minsInput').addEventListener('keydown', e=>{ if(e.key==='Enter') addTask(); });
+    document.getElementById('nameInput').addEventListener('keydown', e=>{ if(e.key==='Enter') document.getElementById('minsInput').focus(); });
+    document.querySelectorAll('[data-del]').forEach(btn=>{
+      btn.onclick = ()=>{ state.tasks = state.tasks.filter(t=>t.id!==Number(btn.dataset.del)); render(); };
+    });
+    const lockBtn = document.getElementById('lockInBtn');
+    if(lockBtn) lockBtn.onclick = startSession;
+    bindProfileButton();
+  }
+
+  function addTask(){
+    const nameInput = document.getElementById('nameInput');
+    const minsInput = document.getElementById('minsInput');
+    const name = nameInput.value.trim();
+    const mins = parseInt(minsInput.value, 10);
+    if(!name){ nameInput.focus(); return; }
+    if(!mins || mins < 1){ minsInput.focus(); return; }
+    state.tasks.push({ id: idSeed++, name, mins, status:'pending' });
+    nameInput.value=''; minsInput.value='';
+    render();
+    document.getElementById('nameInput').focus();
+  }
+
+  function escapeHtml(str){
+    const d = document.createElement('div'); d.textContent = str; return d.innerHTML;
+  }
+
+  function startSession(){
+    state.tasks.forEach((t,i)=> t.status = i===0 ? 'pending' : 'pending');
+    state.currentIndex = 0;
+    state.screen = 'ready';
+    render();
+  }
+
+  // ---------- ready screen (per-task) ----------
+  function renderReady(){
+    const t = state.tasks[state.currentIndex];
+    root.innerHTML = `
+      ${appHeader()}
+      <div class="card ready-wrap">
+        <div class="up-next-label">Task ${state.currentIndex+1} of ${state.tasks.length}</div>
+        <div class="up-next-name">${escapeHtml(t.name)}</div>
+        <div class="up-next-mins">${t.mins} minute timebox</div>
+        <button class="btn btn-primary" id="readyBtn">Ready</button>
+        <div class="queue-strip">
+          ${state.tasks.map((tk,i)=>`<div class="queue-chip ${tk.status==='done'?'done': i===state.currentIndex?'current':''}">${i+1}</div>`).join('')}
+        </div>
+      </div>
+    `;
+    document.getElementById('readyBtn').onclick = beginTimer;
+    bindProfileButton();
+  }
+
+  function beginTimer(){
+    const t = state.tasks[state.currentIndex];
+    t.status = 'active';
+    state.totalSec = t.mins*60;
+    state.remainingSec = t.mins*60;
+    state.warned5 = false;
+    state.screen = 'running';
+    render();
+    clearInterval(state.timerId);
+    state.timerId = setInterval(tick, 1000);
+  }
+
+  function tick(){
+    state.remainingSec -= 1;
+    if(!state.warned5 && state.remainingSec === 300 && state.totalSec > 300){
+      state.warned5 = true;
+      showToast('⏳ 5 minutes left on this task');
+    }
+    if(state.remainingSec <= 0){
+      clearInterval(state.timerId);
+      showToast("⏰ Time's up");
+      openTimeUpModal();
+      return;
+    }
+    updateRing();
+  }
+
+  // ---------- running screen ----------
+  function renderRunning(){
+    const t = state.tasks[state.currentIndex];
+    root.innerHTML = `
+      ${appHeader()}
+      <div class="card timer-wrap">
+        <div class="up-next-label">Task ${state.currentIndex+1} of ${state.tasks.length}</div>
+        <div class="ring-box">
+          <svg viewBox="0 0 240 240">
+            <circle class="ring-bg" cx="120" cy="120" r="104"></circle>
+            <circle class="ring-fg" id="ringFg" cx="120" cy="120" r="104"
+              stroke-dasharray="653.45" stroke-dashoffset="0"></circle>
+          </svg>
+          <div class="ring-center">
+            <div class="ring-time" id="ringTime">${fmt(state.remainingSec)}</div>
+            <div class="ring-task">${escapeHtml(t.name)}</div>
+          </div>
+        </div>
+        <button class="btn btn-ghost" id="doneEarlyBtn">Finish early</button>
+      </div>
+      <div class="queue-strip">
+        ${state.tasks.map((tk,i)=>`<div class="queue-chip ${tk.status==='done'?'done': i===state.currentIndex?'current':''}">${i+1}</div>`).join('')}
+      </div>
+    `;
+    document.getElementById('doneEarlyBtn').onclick = ()=>{ clearInterval(state.timerId); openTimeUpModal(); };
+    bindProfileButton();
+    updateRing();
+  }
+
+  function updateRing(){
+    const ringFg = document.getElementById('ringFg');
+    const ringTime = document.getElementById('ringTime');
+    if(!ringFg || !ringTime) return;
+    const circumference = 653.45;
+    const frac = Math.max(0, state.remainingSec / state.totalSec);
+    ringFg.style.strokeDashoffset = String(circumference * (1-frac));
+    ringFg.style.stroke = state.remainingSec <= 300 ? 'var(--coral)' : 'var(--lime)';
+    ringTime.textContent = fmt(state.remainingSec);
+    ringTime.style.color = state.remainingSec <= 300 ? 'var(--coral)' : 'var(--text)';
+  }
+
+  // ---------- overtime screen (after "More") ----------
+  function renderOvertime(){
+    const t = state.tasks[state.currentIndex];
+    root.innerHTML = `
+      ${appHeader()}
+      <div class="card timer-wrap">
+        <div class="overtime-tag">Working past timebox</div>
+        <div class="ring-box">
+          <svg viewBox="0 0 240 240">
+            <circle class="ring-bg" cx="120" cy="120" r="104"></circle>
+          </svg>
+          <div class="ring-center">
+            <div class="ring-time" id="overtimeClock" style="color:var(--coral)">+00:00</div>
+            <div class="ring-task">${escapeHtml(t.name)}</div>
+          </div>
+        </div>
+        <button class="btn btn-primary" id="finishNowBtn">Mark task finished</button>
+      </div>
+      <div class="queue-strip">
+        ${state.tasks.map((tk,i)=>`<div class="queue-chip ${tk.status==='done'?'done': i===state.currentIndex?'current':''}">${i+1}</div>`).join('')}
+      </div>
+    `;
+    document.getElementById('finishNowBtn').onclick = completeCurrentTask;
+    bindProfileButton();
+    clearInterval(state.timerId);
+    state.timerId = setInterval(()=>{
+      state.remainingSec -= 1;
+      const clock = document.getElementById('overtimeClock');
+      if(clock) clock.textContent = '+'+fmt(state.remainingSec);
+    }, 1000);
+  }
+
+  // ---------- modals ----------
+  function openTimeUpModal(){
+    openModal(`
+      <div class="modal-title">Time's up on this one</div>
+      <div class="modal-sub">How'd it go?</div>
+      <button class="modal-btn done" id="mDone">Done <span class="mb-tag">mark complete</span></button>
+      <button class="modal-btn need" id="mMore">Need more time <span class="mb-tag">→</span></button>
+    `);
+    document.getElementById('mDone').onclick = ()=>{ closeModal(); completeCurrentTask(); };
+    document.getElementById('mMore').onclick = ()=>{ closeModal(); setTimeout(openMoreTimeModal, 260); };
+  }
+
+  function openMoreTimeModal(){
+    openModal(`
+      <div class="modal-title">Add more time</div>
+      <div class="modal-sub">Extend this task's timebox.</div>
+      <button class="modal-btn" id="m10">+10 min <span class="mb-tag">short extension</span></button>
+      <button class="modal-btn" id="m20">+20 min <span class="mb-tag">longer extension</span></button>
+      <button class="modal-btn" id="mMoreOpt">More <span class="mb-tag">work untimed</span></button>
+    `);
+    document.getElementById('m10').onclick = ()=>{ closeModal(); extendTimer(10); };
+    document.getElementById('m20').onclick = ()=>{ closeModal(); extendTimer(20); };
+    document.getElementById('mMoreOpt').onclick = ()=>{ closeModal(); goOvertime(); };
+  }
+
+  function extendTimer(mins){
+    state.remainingSec = mins*60;
+    state.totalSec = mins*60;
+    state.warned5 = false;
+    state.screen = 'running';
+    render();
+    clearInterval(state.timerId);
+    state.timerId = setInterval(tick, 1000);
+    showToast(`+${mins} min added`);
+  }
+
+  function goOvertime(){
+    state.remainingSec = 0;
+    state.screen = 'overtime';
+    render();
+  }
+
+  function completeCurrentTask(){
+    clearInterval(state.timerId);
+    state.tasks[state.currentIndex].status = 'done';
+    const isLast = state.currentIndex === state.tasks.length - 1;
+    if(isLast){
+      finishSession();
+    } else {
+      state.currentIndex += 1;
+      state.screen = 'ready';
+      render();
+    }
+  }
+
+  async function finishSession(){
+    state.screen = 'complete';
+    await markTodayComplete();
+    render();
+  }
+
+  // ---------- complete screen ----------
+  function renderComplete(){
+    const totalMins = state.tasks.reduce((a,t)=>a+t.mins,0);
+    root.innerHTML = `
+      ${appHeader()}
+      <div class="card complete-wrap">
+        <div class="complete-emoji">✅</div>
+        <div class="up-next-name">All tasks cleared</div>
+        <div class="sub" style="margin-bottom:0;">Streak's alive. Come back tomorrow to keep it going.</div>
+        <div class="complete-stats">
+          <div class="stat-box"><div class="stat-num">${state.tasks.length}</div><div class="stat-label">Tasks</div></div>
+          <div class="stat-box"><div class="stat-num">${totalMins}</div><div class="stat-label">Min planned</div></div>
+          <div class="stat-box"><div class="stat-num">${state.streak}</div><div class="stat-label">Day streak</div></div>
+        </div>
+        <button class="btn btn-primary" id="newSessionBtn">Plan another session</button>
+      </div>
+    `;
+    document.getElementById('newSessionBtn').onclick = ()=>{
+      state = { ...state, screen:'setup', tasks:[], currentIndex:0, remainingSec:0, totalSec:0, warned5:false };
+      idSeed = 1;
+      render();
+    };
+    bindProfileButton();
+  }
+
+  // ---------- router ----------
+  function render(){
+    if(!auth.user){ renderLogin(); return; }
+    if(state.screen==='setup') renderSetup();
+    else if(state.screen==='ready') renderReady();
+    else if(state.screen==='running') renderRunning();
+    else if(state.screen==='overtime') renderOvertime();
+    else if(state.screen==='complete') renderComplete();
+  }
+
+  async function init(){
+    const account = authStore.getAccount();
+    if(account && authStore.hasSession()) auth.user = account.profile;
+    await loadStreak();
+  }
+
+  init();
+})();
+</script>
+</body>
+</html>
