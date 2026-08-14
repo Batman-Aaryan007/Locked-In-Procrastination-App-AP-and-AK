@@ -3,28 +3,28 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
-<meta name="theme-color" content="#121016">
+<meta name="theme-color" content="#0F172A">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="lockedin">
-<title>lockedin</title>
+<meta name="apple-mobile-web-app-title" content="Unstuck">
+<title>Unstuck</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 
 <style>
   :root{
-    --bg: #121016;
-    --surface: #1C1922;
-    --surface-2: #262230;
-    --line: #322D3D;
-    --text: #F5F3F7;
-    --muted: #948FA3;
-    --lime: #C8FF4D;
-    --lime-dim: #7C9C2E;
-    --coral: #FF5A7A;
-    --violet: #8A7CFF;
+    --bg: #0F172A;
+    --surface: #172033;
+    --surface-2: #202B40;
+    --line: #334155;
+    --text: #F7F9FC;
+    --muted: #94A3B8;
+    --lime: #7CF29A;
+    --lime-dim: #7CF29A;
+    --coral: #FF6B6B;
+    --violet: #5B8CFF;
     --font-display: 'Space Grotesk', sans-serif;
     --font-body: 'Inter', sans-serif;
   }
@@ -51,7 +51,7 @@
   .shell{ width:100%; max-width: 460px; }
   button{ touch-action: manipulation; }
   button:focus-visible, input:focus-visible, a:focus-visible{
-    outline: 3px solid rgba(200,255,77,.35); outline-offset:2px;
+    outline: 3px solid rgba(124,242,154,.35); outline-offset:2px;
   }
 
   /* Header */
@@ -76,7 +76,7 @@
     background:var(--surface); color:var(--text); cursor:pointer;
     font-family:var(--font-display); font-weight:700; font-size:13px;
   }
-  .flame{ font-size:15px; filter: drop-shadow(0 0 6px rgba(255,90,60,.5)); }
+  .flame{ font-size:15px; filter: drop-shadow(0 0 6px rgba(255,107,107,.5)); }
 
   /* Generic card */
   .card{
@@ -142,7 +142,7 @@
   }
   input[type="text"]{ flex:1; min-width:0; }
   input[type="number"]{ width: 68px; text-align:center; }
-  input::placeholder{ color: #6B6678; }
+  input::placeholder{ color: var(--muted); opacity:.7; }
   input:focus{ border-color: var(--lime); }
 
   .btn{
@@ -158,7 +158,7 @@
     color: var(--text); padding: 11px 16px;
   }
   .btn-primary{
-    background: var(--lime); color: #14150F;
+    background: var(--lime); color: var(--bg);
     width:100%; padding:16px; font-size:15px; margin-top: 18px;
   }
   .btn-primary:disabled{ opacity:.35; cursor:not-allowed; }
@@ -191,7 +191,7 @@
     padding:6px 10px; border-radius:999px; border:1px solid var(--line);
     color: var(--muted);
   }
-  .queue-chip.done{ background: var(--lime); color:#14150F; border-color: var(--lime); }
+  .queue-chip.done{ background: var(--lime); color:var(--bg); border-color: var(--lime); }
   .queue-chip.current{ background: var(--surface-2); color: var(--text); border-color: var(--lime); }
 
   /* Timer screen */
@@ -216,7 +216,7 @@
 
   .toast{
     position: fixed; top: 18px; left:50%; transform: translateX(-50%) translateY(-140%);
-    background: var(--coral); color: #1A0A0E;
+    background: var(--coral); color: var(--bg);
     font-family: var(--font-display); font-weight:700; font-size:13.5px;
     padding: 12px 18px; border-radius: 12px;
     box-shadow: 0 10px 30px rgba(0,0,0,.4);
@@ -228,7 +228,7 @@
 
   /* Modal */
   .modal-veil{
-    position: fixed; inset:0; background: rgba(8,7,11,0.72);
+    position: fixed; inset:0; background: rgba(15,23,42,0.78);
     backdrop-filter: blur(2px);
     display:flex; align-items:flex-end; justify-content:center;
     opacity:0; pointer-events:none; transition: opacity .2s ease;
@@ -255,8 +255,8 @@
   }
   .modal-btn:active{ transform: scale(0.98); }
   .modal-btn .mb-tag{ font-family: var(--font-display); color: var(--muted); font-size:12px; }
-  .modal-btn.done{ background: var(--lime); color:#14150F; border-color: var(--lime); }
-  .modal-btn.done .mb-tag{ color: rgba(20,21,15,.6); }
+  .modal-btn.done{ background: var(--lime); color:var(--bg); border-color: var(--lime); }
+  .modal-btn.done .mb-tag{ color: rgba(15,23,42,.65); }
   .modal-btn.need{ }
 
   /* Complete screen */
@@ -272,14 +272,14 @@
   .stat-num{ font-family: var(--font-display); font-weight:700; font-size:20px; }
   .stat-label{ font-size:10.5px; color: var(--muted); text-transform:uppercase; letter-spacing:.06em; margin-top:2px; }
 
-  .footnote{ text-align:center; color:#5D5868; font-size:11px; margin-top:22px; line-height:1.6; }
+  .footnote{ text-align:center; color:var(--muted); font-size:11px; margin-top:22px; line-height:1.6; }
 
   /* Authentication */
   .auth-shell{ width:100%; max-width:460px; }
   .auth-glow{
     position:fixed; width:260px; height:260px; top:-150px; left:50%;
     transform:translateX(-50%); border-radius:50%; pointer-events:none;
-    background:radial-gradient(circle, rgba(138,124,255,.24), rgba(255,90,122,.08) 48%, transparent 72%);
+    background:radial-gradient(circle, rgba(91,140,255,.24), rgba(124,242,154,.08) 48%, transparent 72%);
   }
   .auth-card{ position:relative; overflow:hidden; }
   .auth-card::before{
@@ -289,7 +289,7 @@
   .auth-heading{ margin-bottom:4px; }
   .auth-form{ display:grid; gap:15px; }
   .field{ display:grid; gap:7px; }
-  .field label{ font-size:12.5px; font-weight:600; color:#D7D3DE; }
+  .field label{ font-size:12.5px; font-weight:600; color:var(--text); }
   .field input{ width:100%; }
   .field.has-error input{ border-color:var(--coral); }
   .field-error{ min-height:16px; color:var(--coral); font-size:11.5px; line-height:1.35; }
@@ -305,8 +305,8 @@
     letter-spacing:.1em; margin-top:5px;
   }
   .partner-panel{
-    background:linear-gradient(145deg, rgba(138,124,255,.10), rgba(255,90,122,.06));
-    border:1px solid rgba(138,124,255,.28); border-radius:16px; padding:16px;
+    background:linear-gradient(145deg, rgba(91,140,255,.10), rgba(124,242,154,.06));
+    border:1px solid rgba(91,140,255,.28); border-radius:16px; padding:16px;
     display:grid; gap:13px;
   }
   .helper{ color:var(--muted); font-size:11.5px; line-height:1.5; }
@@ -394,7 +394,7 @@
   function appHeader(){
     const initial = auth.user && auth.user.fullName ? auth.user.fullName.charAt(0).toUpperCase() : 'A';
     return `<div class="topbar">
-      <div class="wordmark">lock<span>in</span></div>
+      <div class="wordmark"><span>Un</span>stuck</div>
       <div class="top-actions">
         <div class="streak-pill"><span class="flame">🔥</span>${state.streak}</div>
         <button class="account-btn" type="button" data-profile aria-label="Open account profile">${escapeHtml(initial)}</button>
@@ -412,8 +412,10 @@
 
   async function loadStreak(){
     try{
-      const r = await window.storage.get('streak-data');
-      const data = JSON.parse(r.value);
+      const value = window.storage
+        ? (await window.storage.get('streak-data')).value
+        : localStorage.getItem('streak-data');
+      const data = JSON.parse(value);
       state.streak = data.streak || 0;
       state.todayDone = data.lastDate === todayKey();
       if(data.lastDate && data.lastDate !== todayKey()){
@@ -432,7 +434,9 @@
     state.streak += 1;
     state.todayDone = true;
     try{
-      await window.storage.set('streak-data', JSON.stringify({ streak: state.streak, lastDate: todayKey() }));
+      const value = JSON.stringify({ streak: state.streak, lastDate: todayKey() });
+      if(window.storage) await window.storage.set('streak-data', value);
+      else localStorage.setItem('streak-data', value);
     }catch(e){ /* non-fatal */ }
   }
 
@@ -469,7 +473,7 @@
 
   function authFrame(content){
     root.innerHTML = `<div class="auth-glow"></div><div class="auth-shell">
-      <div class="topbar"><div class="wordmark">lock<span>in</span></div></div>
+      <div class="topbar"><div class="wordmark"><span>Un</span>stuck</div></div>
       <div class="card auth-card">${content}</div>
     </div>`;
   }
@@ -514,7 +518,7 @@
   function renderLogin(){
     auth.screen = 'login';
     authFrame(`
-      <h1 class="headline auth-heading">Ready to lock in?</h1>
+      <h1 class="headline auth-heading">Let's get started!</h1>
       <div class="sub">Sign in and start making progress.</div>
       <form class="auth-form" id="loginForm" novalidate>
         ${field('loginEmail','Email address','email','email','you@example.com','required')}
@@ -637,14 +641,14 @@
     auth.screen = 'profile';
     authFrame(`
       <h1 class="headline auth-heading">Your account</h1>
-      <div class="sub">The details keeping your lockin experience connected.</div>
+      <div class="sub">The details keeping your Unstuck experience connected.</div>
       <div class="profile-list">
         <div class="profile-row"><div class="profile-label">Name</div><div class="profile-value">${escapeHtml(profile.fullName)}</div></div>
         <div class="profile-row"><div class="profile-label">Email</div><div class="profile-value">${escapeHtml(profile.email)}</div></div>
         <div class="profile-row"><div class="profile-label">Phone number</div><div class="profile-value">${escapeHtml(profile.phoneNumber)}</div></div>
         <div class="profile-row"><div class="profile-label">Accountability partner</div><div class="profile-value">${escapeHtml(profile.accountabilityPartnerPhone)}</div></div>
       </div>
-      <button class="btn btn-primary" type="button" id="backToApp">Back to lockin</button>
+      <button class="btn btn-primary" type="button" id="backToApp">Back to Unstuck</button>
       <button class="btn btn-ghost" type="button" id="logoutBtn">Log out</button>
     `);
     document.getElementById('backToApp').onclick = ()=>{ auth.screen = 'app'; render(); if(state.screen==='running') state.timerId=setInterval(tick,1000); };
