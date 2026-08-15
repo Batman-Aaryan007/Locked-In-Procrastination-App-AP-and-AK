@@ -322,6 +322,16 @@
   .profile-row:last-child{ border-bottom:0; }
   .profile-label{ color:var(--muted); font-size:11px; text-transform:uppercase; letter-spacing:.08em; }
   .profile-value{ margin-top:4px; font-size:14px; overflow-wrap:anywhere; }
+  .profile-back-btn{
+    background:#7DE89A; color:#0F172A; border:none;
+  }
+  .profile-edit-btn{
+    background:transparent; color:#DCE6F5; border:1px solid #3A4B68;
+  }
+  .profile-logout-btn{
+    background:#2A171B; color:#FF8A92; border:1px solid #D95C64;
+    margin-top:24px;
+  }
   @media (min-width:700px){
     #app{ align-items:flex-start; padding-top:48px; }
     .auth-card{ padding:28px; }
@@ -648,9 +658,9 @@
         <div class="profile-row"><div class="profile-label">Phone number</div><div class="profile-value">${escapeHtml(profile.phoneNumber)}</div></div>
         <div class="profile-row"><div class="profile-label">Accountability partner</div><div class="profile-value">${escapeHtml(profile.accountabilityPartnerPhone)}</div></div>
       </div>
-      <button class="btn btn-primary" type="button" id="editProfileBtn">Edit credentials</button>
-      <button class="btn btn-ghost" type="button" id="backToApp">Back to Unstuck</button>
-      <button class="btn btn-ghost" type="button" id="logoutBtn">Log out</button>
+      <button class="btn btn-ghost profile-edit-btn" type="button" id="editProfileBtn">Edit credentials</button>
+      <button class="btn btn-primary profile-back-btn" type="button" id="backToApp">Back to Unstuck</button>
+      <button class="btn btn-ghost profile-logout-btn" type="button" id="logoutBtn">Log out</button>
     `);
     document.getElementById('editProfileBtn').onclick = renderEditProfile;
     document.getElementById('backToApp').onclick = ()=>{ auth.screen = 'app'; render(); if(state.screen==='running') state.timerId=setInterval(tick,1000); };
