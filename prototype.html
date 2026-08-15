@@ -648,13 +648,105 @@
         <div class="profile-row"><div class="profile-label">Phone number</div><div class="profile-value">${escapeHtml(profile.phoneNumber)}</div></div>
         <div class="profile-row"><div class="profile-label">Accountability partner</div><div class="profile-value">${escapeHtml(profile.accountabilityPartnerPhone)}</div></div>
       </div>
-      <button class="btn btn-primary" type="button" id="backToApp">Back to Unstuck</button>
+      <button class="btn btn-primary" type="button" id="editProfileBtn">Edit credentials</button>
+      <button class="btn btn-ghost" type="button" id="backToApp">Back to Unstuck</button>
       <button class="btn btn-ghost" type="button" id="logoutBtn">Log out</button>
     `);
+    document.getElementById('editProfileBtn').onclick = renderEditProfile;
     document.getElementById('backToApp').onclick = ()=>{ auth.screen = 'app'; render(); if(state.screen==='running') state.timerId=setInterval(tick,1000); };
     document.getElementById('logoutBtn').onclick = ()=>{
       clearInterval(state.timerId); closeModal(); authStore.endSession(); auth.user=null; renderLogin();
     };
+  }
+
+  function renderEditProfile(){
+    const profile = auth.user;
+    auth.screen = 'edit-profile';
+    authFrame(`
+      <h1 class="headline auth-heading">Edit credentials</h1>
+      <div class="sub">Update your account and accountability details.</div>
+      <form class="auth-form" id="editProfileForm" novalidate>
+        <div class="form-section-title">Personal information</div>
+        ${field('editFullName','Full name','text','name','Your name','required maxlength="80"')}
+        ${field('editEmail','Email address','email','email','you@example.com','required')}
+        ${field('editPhoneNumber','Mobile phone number','tel','tel','(555) 123-4567','required inputmode="tel"')}
+        ${field('editPartnerPhone','Accountability partner phone number','tel','tel','(555) 987-6543','required inputmode="tel"')}
+        <div class="form-section-title">Change password (optional)</div>
+        ${field('currentPassword','Current password','password','current-password','Required to set a new password')}
+        ${field('newPassword','New password','password','new-password','At least 8 characters')}
+        ${field('confirmNewPassword','Confirm new password','password','new-password','Enter it again')}
+        <div class="form-status" id="editProfileStatus" role="alert"></div>
+        <button class="btn btn-primary auth-submit" type="submit">Save changes</button>
+        <button class="btn btn-ghost" type="button" id="cancelProfileEdit">Cancel</button>
+      </form>
+    `);
+    document.getElementById('editFullName').value = profile.fullName;
+    document.getElementById('editEmail').value = profile.email;
+    document.getElementById('editPhoneNumber').value = profile.phoneNumber;
+    document.getElementById('editPartnerPhone').value = profile.accountabilityPartnerPhone;
+    bindPasswordToggles();
+    ['editPhoneNumber','editPartnerPhone'].forEach(id => {
+      document.getElementById(id).addEventListener('input', e => e.target.value = formatPhone(e.target.value));
+    });
+    document.getElementById('cancelProfileEdit').onclick = renderProfile;
+    document.getElementById('editProfileForm').onsubmit = handleProfileUpdate;
+  }
+
+  async function handleProfileUpdate(event){
+    event.preventDefault();
+    const form = event.currentTarget;
+    clearErrors(form);
+    const status = document.getElementById('editProfileStatus');
+    status.textContent = '';
+    const values = Object.fromEntries(new FormData(form));
+    const errors = {};
+    if(!values.editFullName.trim()) errors.editFullName = 'Please enter your name.';
+    else if(values.editFullName.trim().length > 80) errors.editFullName = 'Please keep your name under 80 characters.';
+    if(!validEmail(values.editEmail.trim())) errors.editEmail = 'Enter a valid email address.';
+    if(!validPhone(values.editPhoneNumber)) errors.editPhoneNumber = 'Enter a 10-digit phone number.';
+    if(!validPhone(values.editPartnerPhone)) errors.editPartnerPhone = 'Enter a 10-digit phone number.';
+    else if(normalizePhone(values.editPartnerPhone) === normalizePhone(values.editPhoneNumber)) errors.editPartnerPhone = 'Use a different number from your own.';
+    const changingPassword = Boolean(values.currentPassword || values.newPassword || values.confirmNewPassword);
+    if(changingPassword){
+      if(!values.currentPassword) errors.currentPassword = 'Enter your current password.';
+      if(values.newPassword.length < 8) errors.newPassword = 'Use at least 8 characters.';
+      if(values.confirmNewPassword !== values.newPassword) errors.confirmNewPassword = 'Passwords do not match yet.';
+    }
+    Object.entries(errors).forEach(([name,message]) => setFieldError(name,message));
+    if(Object.keys(errors).length){ form.querySelector('[aria-invalid="true"]')?.focus(); return; }
+
+    const account = authStore.getAccount();
+    if(!account){ status.textContent = 'Your account could not be loaded.'; return; }
+    const submit = form.querySelector('[type="submit"]');
+    submit.disabled = true; submit.textContent = 'Saving changes...';
+    try{
+      let credential = account.credential;
+      if(changingPassword){
+        const candidate = await hashPassword(values.currentPassword, account.credential.salt);
+        if(candidate.hash !== account.credential.hash){
+          setFieldError('currentPassword','Current password is incorrect.');
+          submit.disabled = false; submit.textContent = 'Save changes';
+          document.getElementById('currentPassword').focus();
+          return;
+        }
+        credential = await hashPassword(values.newPassword);
+      }
+      const profile = {
+        ...account.profile,
+        fullName: values.editFullName.trim(),
+        email: values.editEmail.trim().toLowerCase(),
+        phoneNumber: formatPhone(values.editPhoneNumber),
+        accountabilityPartnerPhone: formatPhone(values.editPartnerPhone),
+        updatedAt: new Date().toISOString()
+      };
+      authStore.saveAccount({ ...account, profile, credential });
+      auth.user = profile;
+      renderProfile();
+      showToast('Account updated');
+    }catch(error){
+      status.textContent = error.message || 'Could not update your account.';
+      submit.disabled = false; submit.textContent = 'Save changes';
+    }
   }
 
   // ---------- setup screen ----------
