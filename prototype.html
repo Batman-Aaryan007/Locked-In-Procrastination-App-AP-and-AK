@@ -115,11 +115,6 @@
   }
   .status-badge.started{ border-color:rgba(124,242,154,.45); color:var(--lime); }
   .status-badge.done{ color:var(--muted); }
-  .first-step-display{
-    background:var(--surface-2); border-radius:12px; padding:12px 13px;
-    color:var(--text); font-size:13.5px; line-height:1.45;
-  }
-  .first-step-label{ display:block; color:var(--muted); font-size:10.5px; font-weight:700; text-transform:uppercase; letter-spacing:.08em; margin-bottom:4px; }
   .task-card-actions{ display:flex; flex-wrap:wrap; gap:8px; }
   .task-action{
     min-height:42px; padding:10px 13px; border-radius:11px; cursor:pointer;
@@ -134,21 +129,36 @@
   .task-modal-task{ background:var(--surface-2); border-radius:12px; padding:12px 13px; margin-bottom:16px; color:var(--text); font-size:13.5px; line-height:1.4; }
   .task-modal-task span{ display:block; color:var(--muted); font-size:10.5px; font-weight:700; text-transform:uppercase; letter-spacing:.08em; margin-bottom:4px; }
   .modal-field{ display:grid; gap:7px; margin-bottom:16px; }
-  .modal-field label, .barrier-legend{ font-size:12.5px; font-weight:700; color:var(--text); }
+  .modal-field label{ font-size:12.5px; font-weight:700; color:var(--text); }
   .modal-field input{ width:100%; }
-  .barrier-group{ border:0; margin:4px 0 14px; }
-  .barrier-legend{ margin-bottom:9px; }
-  .barrier-chips{ display:flex; flex-wrap:wrap; gap:7px; }
-  .barrier-chip{ background:transparent; border:1px solid var(--line); color:var(--muted); border-radius:999px; padding:9px 11px; cursor:pointer; font:600 11.5px var(--font-body); }
-  .barrier-chip.selected{ background:var(--surface-2); color:var(--text); border-color:var(--violet); }
-  .barrier-suggestion{ min-height:37px; color:var(--lime); font-size:12.5px; line-height:1.45; padding:4px 0 10px; }
+  .barrier-question{ font:700 21px/1.25 var(--font-display); margin-bottom:14px; }
+  .barrier-options{ display:grid; gap:9px; }
+  .barrier-option{
+    width:100%; min-height:54px; padding:14px 15px; text-align:left;
+    background:var(--surface-2); border:1px solid var(--line); color:var(--text);
+    border-radius:13px; cursor:pointer; font:600 14px/1.35 var(--font-body);
+    transition:border-color .12s ease, transform .12s ease, background .12s ease;
+  }
+  .barrier-option:hover{ border-color:#52627C; }
+  .barrier-option:active{ transform:scale(.985); }
+  .barrier-back{
+    display:block; margin:14px auto 0; min-height:42px; padding:10px 14px;
+    border:0; background:transparent; color:var(--muted); cursor:pointer;
+    font:600 13px var(--font-body);
+  }
+  .intervention-view{ animation:intervention-in .18s ease-out; }
+  .intervention-headline{
+    font:700 clamp(28px, 8vw, 38px)/1.04 var(--font-display);
+    letter-spacing:-.035em; margin:22px 0 12px; overflow-wrap:anywhere;
+  }
+  .intervention-copy{ color:var(--muted); font-size:15px; line-height:1.55; margin-bottom:22px; }
+  .intervention-start{ width:100%; min-height:52px; margin:0; }
+  @keyframes intervention-in{ from{ opacity:0; transform:scale(.985); } to{ opacity:1; transform:scale(1); } }
+  @media (prefers-reduced-motion:reduce){ .intervention-view{ animation:none; } }
   .modal-actions{ display:flex; gap:9px; margin-top:4px; }
   .modal-actions .btn{ width:auto; min-height:46px; margin:0; flex:1; padding:12px; }
   .modal-actions .btn-primary{ background:var(--lime); color:var(--bg); }
   .modal-actions .btn-ghost{ background:transparent; color:var(--text); border:1px solid var(--line); }
-  .make-smaller-btn{ border:0; background:transparent; color:var(--muted); cursor:pointer; font:600 12px var(--font-body); padding:7px 0; margin:-6px 0 8px; text-align:left; }
-  .small-step-hint{ display:none; color:var(--lime); font-size:12px; margin:-6px 0 14px; }
-  .small-step-hint.show{ display:block; }
   .home-status{ min-height:20px; color:var(--lime); font-size:12.5px; margin-top:-14px; margin-bottom:10px; }
 
   /* Setup screen */
@@ -458,7 +468,6 @@
           id: task.id || createTaskId(),
           name: String(task.name || '').trim(),
           status: ['not_started','started','done'].includes(task.status) ? task.status : 'not_started',
-          firstStep: String(task.firstStep || ''),
           barrier: String(task.barrier || ''),
           createdAt: task.createdAt || new Date().toISOString(),
           startedAt: task.startedAt || null,
@@ -562,14 +571,33 @@
     setTimeout(()=> toastEl.classList.remove('show'), 3200);
   }
 
-  function openModal(html){
+  let modalReturnFocus = null;
+  function openModal(html, labelledBy=''){
+    if(!veil.classList.contains('show')) modalReturnFocus = document.activeElement;
     sheet.innerHTML = html;
+    sheet.setAttribute('role','dialog');
+    sheet.setAttribute('aria-modal','true');
+    if(labelledBy) sheet.setAttribute('aria-labelledby',labelledBy);
+    else sheet.removeAttribute('aria-labelledby');
     veil.classList.add('show');
   }
   function closeModal(){
     veil.classList.remove('show');
+    const returnTarget = modalReturnFocus;
+    modalReturnFocus = null;
+    setTimeout(() => returnTarget?.isConnected && returnTarget.focus(), 220);
   }
   veil.addEventListener('click', (e)=>{ if(e.target===veil){ /* prevent accidental dismiss during active timeup flow */ } });
+  veil.addEventListener('keydown', event => {
+    if(!veil.classList.contains('show')) return;
+    if(event.key === 'Escape'){ event.preventDefault(); closeModal(); return; }
+    if(event.key !== 'Tab') return;
+    const focusable = [...sheet.querySelectorAll('button:not([disabled]), input:not([disabled]), [tabindex]:not([tabindex="-1"])')];
+    if(!focusable.length) return;
+    const first = focusable[0], last = focusable[focusable.length - 1];
+    if(event.shiftKey && document.activeElement === first){ event.preventDefault(); last.focus(); }
+    else if(!event.shiftKey && document.activeElement === last){ event.preventDefault(); first.focus(); }
+  });
 
   // ---------- authentication ----------
   function field(name, label, type, autocomplete, placeholder, extra=''){
@@ -879,22 +907,31 @@
   }
 
   // ---------- task-first home ----------
-  const barrierSuggestions = {
-    'too-big': "Let's shrink it. Pick one tiny piece.",
-    'no-start': 'Choose the first visible action, not the whole assignment.',
-    'boring': "Don't commit to finishing. Just make one small piece of progress.",
-    'worried': 'Your first attempt is allowed to be rough.',
-    'distracted': 'Put the distraction away before you begin.',
-    'unmotivated': "You don't need to feel motivated first. Start with one small action."
-  };
-
-  const barrierLabels = {
-    'too-big': 'It feels too big',
-    'no-start': "I don't know where to start",
-    'boring': "It's boring",
-    'worried': "I'm worried I'll do it badly",
-    'distracted': "I'm distracted",
-    'unmotivated': "I just don't feel like doing it"
+  const barrierInterventions = {
+    'too-big': {
+      label:'It feels too big', headline:"YOU DON'T HAVE TO FINISH IT.",
+      support:'Forget the whole task. Do one small piece and get moving.', action:'Start anyway'
+    },
+    'no-start': {
+      label:"I don't know where to start", headline:"START WHERE IT'S OBVIOUS.",
+      support:'Open the assignment and look at the first thing in front of you.', action:'Start anyway'
+    },
+    'boring': {
+      label:"It's boring", headline:"DON'T WAIT FOR IT TO BE INTERESTING.",
+      support:'Make one small piece of progress. Momentum matters more than motivation.', action:'Start anyway'
+    },
+    'worried': {
+      label:"I'm worried I'll do it badly", headline:'YOUR FIRST ATTEMPT CAN BE BAD.',
+      support:'Rough is better than untouched. You can improve it after you begin.', action:'Start anyway'
+    },
+    'distracted': {
+      label:"I'm distracted", headline:'REMOVE THE DISTRACTION FIRST.',
+      support:'Put your phone away, close everything else, and come back to this.', action:"I'm ready"
+    },
+    'unmotivated': {
+      label:"I just don't feel like it", headline:"YOU DON'T NEED TO FEEL READY.",
+      support:'Motivation can come after you start.', action:'Start anyway'
+    }
   };
 
   function taskStatusLabel(status){
@@ -914,10 +951,9 @@
         <h3 class="task-card-name">${escapeHtml(task.name)}</h3>
         <span class="status-badge ${task.status}" aria-label="Status: ${taskStatusLabel(task.status)}">${taskStatusLabel(task.status)}</span>
       </div>
-      ${started && task.firstStep ? `<div class="first-step-display"><span class="first-step-label">First step</span>${escapeHtml(task.firstStep)}</div>` : ''}
       <div class="task-card-actions">
-        ${task.status === 'not_started' ? `<button class="task-action task-action-primary" type="button" data-first-step="${task.id}">Take the first step</button>` : ''}
-        ${started ? `<button class="task-action task-action-primary" type="button" data-complete="${task.id}">Done with this step</button><button class="task-action task-action-secondary" type="button" data-first-step="${task.id}">Change first step</button>` : ''}
+        ${task.status === 'not_started' ? `<button class="task-action task-action-primary" type="button" data-get-unstuck="${task.id}">Get unstuck</button>` : ''}
+        ${started ? `<button class="task-action task-action-primary" type="button" data-complete="${task.id}">Mark complete</button>` : ''}
         <button class="task-action task-action-secondary" type="button" data-edit-task="${task.id}">Edit</button>
         <button class="task-action task-action-delete" type="button" data-delete-task="${task.id}" aria-label="Delete ${escapeAttr(task.name)}">Delete</button>
       </div>
@@ -934,7 +970,7 @@
     root.innerHTML = `
       ${appHeader()}
       <h1 class="headline">What do you need to get done?</h1>
-      <div class="sub">Don't worry about finishing it yet. Just get it out of your head.</div>
+      <div class="sub">Add the thing you've been putting off.</div>
       <div class="card task-entry-card">
         <form class="task-entry-form" id="taskEntryForm">
           <label class="sr-only" for="taskNameInput">Task</label>
@@ -948,7 +984,7 @@
     `;
     state.announcement = '';
     document.getElementById('taskEntryForm').onsubmit = addTaskFromForm;
-    document.querySelectorAll('[data-first-step]').forEach(button => button.onclick = () => openFirstStepFlow(button.dataset.firstStep));
+    document.querySelectorAll('[data-get-unstuck]').forEach(button => button.onclick = () => openBarrierFlow(button.dataset.getUnstuck));
     document.querySelectorAll('[data-complete]').forEach(button => button.onclick = () => completeTask(button.dataset.complete));
     document.querySelectorAll('[data-edit-task]').forEach(button => button.onclick = () => openEditTask(button.dataset.editTask));
     document.querySelectorAll('[data-delete-task]').forEach(button => button.onclick = () => openDeleteTask(button.dataset.deleteTask));
@@ -961,7 +997,7 @@
     const name = input.value.trim();
     if(!name){ input.focus(); return; }
     state.tasks.push({
-      id:createTaskId(), name, status:'not_started', firstStep:'', barrier:'',
+      id:createTaskId(), name, status:'not_started', barrier:'',
       createdAt:new Date().toISOString(), startedAt:null, completedAt:null
     });
     saveTasks();
@@ -972,70 +1008,50 @@
 
   function findTask(id){ return state.tasks.find(task => String(task.id) === String(id)); }
 
-  function openFirstStepFlow(id){
+  function openBarrierFlow(id){
     const task = findTask(id);
     if(!task) return;
-    let selectedBarrier = task.barrier || '';
     openModal(`
-      <form id="firstStepForm" novalidate>
-        <div class="modal-title">${task.status === 'started' ? 'Change your first step' : "What's the first thing you can actually do?"}</div>
-        <div class="modal-sub">Choose one visible action, not the whole assignment.</div>
-        <div class="task-modal-task"><span>Task</span>${escapeHtml(task.name)}</div>
-        <div class="modal-field">
-          <label for="firstStepInput">First step</label>
-          <input id="firstStepInput" type="text" maxlength="140" value="${escapeAttr(task.firstStep)}" placeholder="Example: Open the assignment and read question 1" required>
-          <div class="field-error" id="firstStepError" aria-live="polite"></div>
-        </div>
-        <button class="make-smaller-btn" id="makeSmallerBtn" type="button">Make it smaller</button>
-        <div class="small-step-hint" id="smallStepHint" role="status">Make it something you could do in a few minutes.</div>
-        <fieldset class="barrier-group">
-          <legend class="barrier-legend">What's making this hard to start? <span class="helper">(optional)</span></legend>
-          <div class="barrier-chips">
-            ${Object.entries(barrierLabels).map(([value,label]) => `<button class="barrier-chip ${selectedBarrier === value ? 'selected' : ''}" type="button" data-barrier="${value}" aria-pressed="${selectedBarrier === value}">${label}</button>`).join('')}
-          </div>
-        </fieldset>
-        <div class="barrier-suggestion" id="barrierSuggestion" role="status" aria-live="polite">${selectedBarrier ? barrierSuggestions[selectedBarrier] : ''}</div>
-        <div class="modal-actions">
-          <button class="btn btn-ghost" id="cancelFirstStep" type="button">Cancel</button>
-          <button class="btn btn-primary" type="submit">${task.status === 'started' ? 'Save first step' : 'Start with this'}</button>
-        </div>
-      </form>
-    `);
-    const input = document.getElementById('firstStepInput');
-    input.focus(); input.setSelectionRange(input.value.length, input.value.length);
-    document.getElementById('makeSmallerBtn').onclick = () => {
-      document.getElementById('smallStepHint').classList.add('show');
-      input.placeholder = 'Example: Open the worksheet';
-      input.focus();
-    };
+      <div class="task-modal-task" id="barrierTask"><span>Task</span>${escapeHtml(task.name)}</div>
+      <div id="barrierDialogTitle" class="barrier-question">What's making this hard to start?</div>
+      <div class="barrier-options" aria-labelledby="barrierDialogTitle barrierTask">
+        ${Object.entries(barrierInterventions).map(([value,intervention]) => `<button class="barrier-option" type="button" data-barrier="${value}">${intervention.label}</button>`).join('')}
+      </div>
+      <button class="barrier-back" id="cancelBarrier" type="button">Back</button>
+    `,'barrierDialogTitle');
     document.querySelectorAll('[data-barrier]').forEach(button => {
-      button.onclick = () => {
-        selectedBarrier = selectedBarrier === button.dataset.barrier ? '' : button.dataset.barrier;
-        document.querySelectorAll('[data-barrier]').forEach(chip => {
-          const selected = chip.dataset.barrier === selectedBarrier;
-          chip.classList.toggle('selected', selected); chip.setAttribute('aria-pressed', String(selected));
-        });
-        document.getElementById('barrierSuggestion').textContent = selectedBarrier ? barrierSuggestions[selectedBarrier] : '';
-      };
+      button.onclick = () => showIntervention(task, button.dataset.barrier);
     });
-    document.getElementById('cancelFirstStep').onclick = closeModal;
-    document.getElementById('firstStepForm').onsubmit = async event => {
-      event.preventDefault();
-      const firstStep = input.value.trim();
-      if(!firstStep){ document.getElementById('firstStepError').textContent = 'Add one small action to begin.'; input.focus(); return; }
-      const firstStart = task.status !== 'started';
-      task.firstStep = firstStep;
-      task.barrier = selectedBarrier;
+    document.getElementById('cancelBarrier').onclick = closeModal;
+    document.querySelector('[data-barrier]')?.focus();
+  }
+
+  function showIntervention(task, barrier){
+    const intervention = barrierInterventions[barrier];
+    if(!intervention) return;
+    openModal(`
+      <div class="intervention-view">
+        <div class="task-modal-task"><span>Task</span>${escapeHtml(task.name)}</div>
+        <h2 class="intervention-headline" id="interventionTitle" tabindex="-1">${intervention.headline}</h2>
+        <p class="intervention-copy">${intervention.support}</p>
+        <button class="btn btn-primary intervention-start" id="startIntervention" type="button">${intervention.action}</button>
+        <button class="barrier-back" id="backToBarriers" type="button">Back</button>
+      </div>
+    `,'interventionTitle');
+    document.getElementById('backToBarriers').onclick = () => openBarrierFlow(task.id);
+    document.getElementById('startIntervention').onclick = async () => {
       task.status = 'started';
+      task.barrier = barrier;
       task.startedAt = task.startedAt || new Date().toISOString();
       task.completedAt = null;
       saveTasks();
-      if(firstStart) await markTodayAction();
+      await markTodayAction();
       closeModal();
-      state.announcement = firstStart ? "You're moving." : 'First step updated.';
+      state.announcement = "You're moving.";
       renderHome();
-      showToast(firstStart ? "You're moving." : 'First step updated.', 'success');
+      showToast("You're moving.", 'success');
     };
+    document.getElementById('interventionTitle').focus();
   }
 
   function openEditTask(id){
