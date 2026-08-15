@@ -50,7 +50,7 @@
   }
   .shell{ width:100%; max-width: 460px; }
   button{ touch-action: manipulation; }
-  button:focus-visible, input:focus-visible, a:focus-visible{
+  button:focus-visible, input:focus-visible, textarea:focus-visible, a:focus-visible{
     outline: 3px solid rgba(124,242,154,.35); outline-offset:2px;
   }
 
@@ -92,6 +92,64 @@
     margin-bottom: 6px;
   }
   .sub{ color: var(--muted); font-size:14px; margin-bottom:22px; line-height:1.5; }
+  .sr-only{ position:absolute; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden; clip:rect(0,0,0,0); white-space:nowrap; border:0; }
+
+  /* Task-first home */
+  .task-entry-card{ padding:16px; margin-bottom:28px; }
+  .task-entry-form{ display:flex; gap:10px; align-items:stretch; }
+  .task-entry-form input{ width:100%; min-height:50px; }
+  .task-entry-form .btn{ flex:0 0 auto; min-height:50px; background:var(--lime); color:var(--bg); }
+  .section-heading{ font:700 17px var(--font-display); letter-spacing:-.01em; margin-bottom:12px; }
+  .task-list{ display:grid; gap:12px; }
+  .task-card{
+    background:var(--surface); border:1px solid var(--line); border-radius:18px;
+    padding:17px; display:grid; gap:14px;
+  }
+  .task-card.is-done{ opacity:.66; }
+  .task-card.is-done .task-card-name{ text-decoration:line-through; text-decoration-thickness:1px; }
+  .task-card-top{ display:flex; align-items:flex-start; justify-content:space-between; gap:12px; }
+  .task-card-name{ font:700 16px/1.35 var(--font-display); overflow-wrap:anywhere; }
+  .status-badge{
+    flex:0 0 auto; border:1px solid var(--line); border-radius:999px; padding:5px 8px;
+    color:var(--muted); font-size:10.5px; font-weight:700; white-space:nowrap;
+  }
+  .status-badge.started{ border-color:rgba(124,242,154,.45); color:var(--lime); }
+  .status-badge.done{ color:var(--muted); }
+  .first-step-display{
+    background:var(--surface-2); border-radius:12px; padding:12px 13px;
+    color:var(--text); font-size:13.5px; line-height:1.45;
+  }
+  .first-step-label{ display:block; color:var(--muted); font-size:10.5px; font-weight:700; text-transform:uppercase; letter-spacing:.08em; margin-bottom:4px; }
+  .task-card-actions{ display:flex; flex-wrap:wrap; gap:8px; }
+  .task-action{
+    min-height:42px; padding:10px 13px; border-radius:11px; cursor:pointer;
+    font:700 12.5px var(--font-display);
+  }
+  .task-action-primary{ background:var(--lime); color:var(--bg); border:1px solid var(--lime); }
+  .task-action-secondary{ background:transparent; color:var(--text); border:1px solid var(--line); }
+  .task-action-delete{ background:transparent; color:var(--coral); border:1px solid rgba(255,107,107,.42); margin-left:auto; }
+  .empty-task-list{ text-align:center; background:var(--surface); border:1px dashed var(--line); border-radius:18px; padding:30px 18px; }
+  .empty-task-list strong{ display:block; font:700 16px var(--font-display); margin-bottom:5px; }
+  .empty-task-list span{ color:var(--muted); font-size:13px; }
+  .task-modal-task{ background:var(--surface-2); border-radius:12px; padding:12px 13px; margin-bottom:16px; color:var(--text); font-size:13.5px; line-height:1.4; }
+  .task-modal-task span{ display:block; color:var(--muted); font-size:10.5px; font-weight:700; text-transform:uppercase; letter-spacing:.08em; margin-bottom:4px; }
+  .modal-field{ display:grid; gap:7px; margin-bottom:16px; }
+  .modal-field label, .barrier-legend{ font-size:12.5px; font-weight:700; color:var(--text); }
+  .modal-field input{ width:100%; }
+  .barrier-group{ border:0; margin:4px 0 14px; }
+  .barrier-legend{ margin-bottom:9px; }
+  .barrier-chips{ display:flex; flex-wrap:wrap; gap:7px; }
+  .barrier-chip{ background:transparent; border:1px solid var(--line); color:var(--muted); border-radius:999px; padding:9px 11px; cursor:pointer; font:600 11.5px var(--font-body); }
+  .barrier-chip.selected{ background:var(--surface-2); color:var(--text); border-color:var(--violet); }
+  .barrier-suggestion{ min-height:37px; color:var(--lime); font-size:12.5px; line-height:1.45; padding:4px 0 10px; }
+  .modal-actions{ display:flex; gap:9px; margin-top:4px; }
+  .modal-actions .btn{ width:auto; min-height:46px; margin:0; flex:1; padding:12px; }
+  .modal-actions .btn-primary{ background:var(--lime); color:var(--bg); }
+  .modal-actions .btn-ghost{ background:transparent; color:var(--text); border:1px solid var(--line); }
+  .make-smaller-btn{ border:0; background:transparent; color:var(--muted); cursor:pointer; font:600 12px var(--font-body); padding:7px 0; margin:-6px 0 8px; text-align:left; }
+  .small-step-hint{ display:none; color:var(--lime); font-size:12px; margin:-6px 0 14px; }
+  .small-step-hint.show{ display:block; }
+  .home-status{ min-height:20px; color:var(--lime); font-size:12.5px; margin-top:-14px; margin-bottom:10px; }
 
   /* Setup screen */
   .task-row{
@@ -225,6 +283,7 @@
     z-index: 50; white-space:nowrap;
   }
   .toast.show{ transform: translateX(-50%) translateY(0); opacity:1; visibility:visible; }
+  .toast.success{ background:var(--lime); color:var(--bg); }
 
   /* Modal */
   .modal-veil{
@@ -242,6 +301,7 @@
     padding: 26px 22px calc(env(safe-area-inset-bottom, 0px) + 30px);
     transform: translateY(24px);
     transition: transform .28s cubic-bezier(.2,.9,.3,1.2);
+    max-height:calc(100dvh - 24px); overflow-y:auto;
   }
   .modal-veil.show .modal-sheet{ transform: translateY(0); }
   .modal-title{ font-family: var(--font-display); font-weight:700; font-size:20px; margin-bottom:4px; }
@@ -336,6 +396,11 @@
     #app{ align-items:flex-start; padding-top:48px; }
     .auth-card{ padding:28px; }
   }
+  @media (max-width:420px){
+    .task-entry-form{ flex-direction:column; }
+    .task-entry-form .btn{ width:100%; }
+    .task-action-delete{ margin-left:0; }
+  }
 </style>
 </head>
 <body>
@@ -352,11 +417,15 @@
 
   const AUTH_ACCOUNT_KEY = 'lockedin-auth-account-v1';
   const AUTH_SESSION_KEY = 'lockedin-auth-session-v1';
+  const TASKS_KEY_PREFIX = 'unstuck-tasks-v1:';
+  const STREAK_KEY_PREFIX = 'unstuck-streak-v2:';
   let auth = { screen:'login', user:null };
 
   let state = {
-    screen: 'setup',       // setup | ready | running | overtime | complete
-    tasks: [],             // {id, name, mins, status: pending|active|done}
+    screen: 'home',
+    tasks: [],
+    announcement: '',
+    // Legacy timer state is intentionally retained but no longer routed from the home flow.
     currentIndex: 0,
     remainingSec: 0,
     totalSec: 0,
@@ -378,6 +447,35 @@
     startSession(){ localStorage.setItem(AUTH_SESSION_KEY, 'active'); },
     endSession(){ localStorage.removeItem(AUTH_SESSION_KEY); }
   };
+
+  const taskStore = {
+    key(email = auth.user?.email){ return `${TASKS_KEY_PREFIX}${String(email || '').toLowerCase()}`; },
+    load(email){
+      try{
+        const value = JSON.parse(localStorage.getItem(this.key(email)) || '[]');
+        if(!Array.isArray(value)) return [];
+        return value.map(task => ({
+          id: task.id || createTaskId(),
+          name: String(task.name || '').trim(),
+          status: ['not_started','started','done'].includes(task.status) ? task.status : 'not_started',
+          firstStep: String(task.firstStep || ''),
+          barrier: String(task.barrier || ''),
+          createdAt: task.createdAt || new Date().toISOString(),
+          startedAt: task.startedAt || null,
+          completedAt: task.completedAt || null
+        })).filter(task => task.name);
+      }catch(e){ return []; }
+    },
+    save(tasks = state.tasks, email){ localStorage.setItem(this.key(email), JSON.stringify(tasks)); }
+  };
+
+  function createTaskId(){
+    if(window.crypto?.randomUUID) return crypto.randomUUID();
+    return `${Date.now()}-${Math.random().toString(16).slice(2)}`;
+  }
+
+  function loadTasks(email = auth.user?.email){ state.tasks = taskStore.load(email); }
+  function saveTasks(){ taskStore.save(); }
 
   function bytesToBase64(bytes){
     let value = '';
@@ -419,12 +517,13 @@
 
   // ---------- storage (streak) ----------
   const todayKey = () => new Date().toISOString().slice(0,10);
+  const streakKey = (email = auth.user?.email) => `${STREAK_KEY_PREFIX}${String(email || '').toLowerCase()}`;
 
   async function loadStreak(){
     try{
       const value = window.storage
-        ? (await window.storage.get('streak-data')).value
-        : localStorage.getItem('streak-data');
+        ? (await window.storage.get(streakKey())).value
+        : localStorage.getItem(streakKey());
       const data = JSON.parse(value);
       state.streak = data.streak || 0;
       state.todayDone = data.lastDate === todayKey();
@@ -436,17 +535,16 @@
     }catch(e){
       state.streak = 0; state.todayDone = false;
     }
-    render();
   }
 
-  async function markTodayComplete(){
+  async function markTodayAction(){
     if(state.todayDone) return;
     state.streak += 1;
     state.todayDone = true;
     try{
       const value = JSON.stringify({ streak: state.streak, lastDate: todayKey() });
-      if(window.storage) await window.storage.set('streak-data', value);
-      else localStorage.setItem('streak-data', value);
+      if(window.storage) await window.storage.set(streakKey(), value);
+      else localStorage.setItem(streakKey(), value);
     }catch(e){ /* non-fatal */ }
   }
 
@@ -457,8 +555,9 @@
     return (sec<0?'-':'') + String(m).padStart(2,'0')+':'+String(s).padStart(2,'0');
   }
 
-  function showToast(msg){
+  function showToast(msg, tone='alert'){
     toastEl.textContent = msg;
+    toastEl.classList.toggle('success', tone === 'success');
     toastEl.classList.add('show');
     setTimeout(()=> toastEl.classList.remove('show'), 3200);
   }
@@ -617,6 +716,9 @@
       authStore.saveAccount({ profile, credential });
       authStore.startSession();
       auth.user = profile;
+      state.tasks = [];
+      state.streak = 0; state.todayDone = false;
+      saveTasks();
       render();
     }catch(error){
       document.getElementById('signupStatus').textContent = error.message || 'Could not create your account.';
@@ -641,7 +743,10 @@
     try{
       const candidate = await hashPassword(password, account.credential.salt);
       if(candidate.hash !== account.credential.hash){ status.textContent = 'Email or password is incorrect.'; submit.disabled=false; submit.textContent='Log in'; return; }
-      authStore.startSession(); auth.user = account.profile; render();
+      authStore.startSession(); auth.user = account.profile;
+      loadTasks();
+      await loadStreak();
+      render();
     }catch(error){ status.textContent = error.message || 'Could not log in.'; submit.disabled=false; submit.textContent='Log in'; }
   }
 
@@ -663,12 +768,11 @@
       <button class="btn btn-ghost profile-logout-btn" type="button" id="logoutBtn">Log out</button>
     `);
     document.getElementById('editProfileBtn').onclick = renderEditProfile;
-    document.getElementById('backToApp').onclick = ()=>{ auth.screen = 'app'; render(); if(state.screen==='running') state.timerId=setInterval(tick,1000); };
+    document.getElementById('backToApp').onclick = ()=>{ auth.screen = 'app'; state.screen = 'home'; render(); };
     document.getElementById('logoutBtn').onclick = ()=>{
       clearInterval(state.timerId); closeModal(); authStore.endSession(); auth.user=null; renderLogin();
     };
   }
-
   function renderEditProfile(){
     const profile = auth.user;
     auth.screen = 'edit-profile';
@@ -741,6 +845,7 @@
         }
         credential = await hashPassword(values.newPassword);
       }
+      const previousEmail = account.profile.email;
       const profile = {
         ...account.profile,
         fullName: values.editFullName.trim(),
@@ -750,7 +855,21 @@
         updatedAt: new Date().toISOString()
       };
       authStore.saveAccount({ ...account, profile, credential });
+      if(previousEmail.toLowerCase() !== profile.email.toLowerCase()){
+        try{
+          if(window.storage){
+            const oldStreak = (await window.storage.get(streakKey(previousEmail))).value;
+            if(oldStreak) await window.storage.set(streakKey(profile.email), oldStreak);
+          }else{
+            const oldStreak = localStorage.getItem(streakKey(previousEmail));
+            if(oldStreak) localStorage.setItem(streakKey(profile.email), oldStreak);
+            localStorage.removeItem(streakKey(previousEmail));
+          }
+        }catch(e){ /* keep the profile update non-blocking */ }
+      }
       auth.user = profile;
+      taskStore.save(state.tasks, profile.email);
+      if(previousEmail.toLowerCase() !== profile.email.toLowerCase()) localStorage.removeItem(taskStore.key(previousEmail));
       renderProfile();
       showToast('Account updated');
     }catch(error){
@@ -759,6 +878,215 @@
     }
   }
 
+  // ---------- task-first home ----------
+  const barrierSuggestions = {
+    'too-big': "Let's shrink it. Pick one tiny piece.",
+    'no-start': 'Choose the first visible action, not the whole assignment.',
+    'boring': "Don't commit to finishing. Just make one small piece of progress.",
+    'worried': 'Your first attempt is allowed to be rough.',
+    'distracted': 'Put the distraction away before you begin.',
+    'unmotivated': "You don't need to feel motivated first. Start with one small action."
+  };
+
+  const barrierLabels = {
+    'too-big': 'It feels too big',
+    'no-start': "I don't know where to start",
+    'boring': "It's boring",
+    'worried': "I'm worried I'll do it badly",
+    'distracted': "I'm distracted",
+    'unmotivated': "I just don't feel like doing it"
+  };
+
+  function taskStatusLabel(status){
+    return status === 'started' ? 'Started' : status === 'done' ? 'Done' : 'Not started';
+  }
+
+  function orderedTasks(){
+    const order = { not_started:0, started:1, done:2 };
+    return [...state.tasks].sort((a,b) => order[a.status] - order[b.status] || new Date(a.createdAt) - new Date(b.createdAt));
+  }
+
+  function taskCard(task){
+    const started = task.status === 'started';
+    const done = task.status === 'done';
+    return `<article class="task-card ${done ? 'is-done' : ''}" data-task-card="${task.id}">
+      <div class="task-card-top">
+        <h3 class="task-card-name">${escapeHtml(task.name)}</h3>
+        <span class="status-badge ${task.status}" aria-label="Status: ${taskStatusLabel(task.status)}">${taskStatusLabel(task.status)}</span>
+      </div>
+      ${started && task.firstStep ? `<div class="first-step-display"><span class="first-step-label">First step</span>${escapeHtml(task.firstStep)}</div>` : ''}
+      <div class="task-card-actions">
+        ${task.status === 'not_started' ? `<button class="task-action task-action-primary" type="button" data-first-step="${task.id}">Take the first step</button>` : ''}
+        ${started ? `<button class="task-action task-action-primary" type="button" data-complete="${task.id}">Done with this step</button><button class="task-action task-action-secondary" type="button" data-first-step="${task.id}">Change first step</button>` : ''}
+        <button class="task-action task-action-secondary" type="button" data-edit-task="${task.id}">Edit</button>
+        <button class="task-action task-action-delete" type="button" data-delete-task="${task.id}" aria-label="Delete ${escapeAttr(task.name)}">Delete</button>
+      </div>
+    </article>`;
+  }
+
+  function renderTaskList(){
+    if(!state.tasks.length) return `<div class="empty-task-list"><strong>Nothing here yet.</strong><span>Add the thing you've been avoiding.</span></div>`;
+    return `<div class="task-list">${orderedTasks().map(taskCard).join('')}</div>`;
+  }
+
+  function renderHome(){
+    state.screen = 'home';
+    root.innerHTML = `
+      ${appHeader()}
+      <h1 class="headline">What do you need to get done?</h1>
+      <div class="sub">Don't worry about finishing it yet. Just get it out of your head.</div>
+      <div class="card task-entry-card">
+        <form class="task-entry-form" id="taskEntryForm">
+          <label class="sr-only" for="taskNameInput">Task</label>
+          <input type="text" id="taskNameInput" maxlength="100" placeholder="What are you putting off?" autocomplete="off" required>
+          <button class="btn" type="submit">Add task</button>
+        </form>
+      </div>
+      <div class="home-status" id="homeStatus" role="status" aria-live="polite">${escapeHtml(state.announcement)}</div>
+      <h2 class="section-heading">Today's tasks</h2>
+      <div id="taskList">${renderTaskList()}</div>
+    `;
+    state.announcement = '';
+    document.getElementById('taskEntryForm').onsubmit = addTaskFromForm;
+    document.querySelectorAll('[data-first-step]').forEach(button => button.onclick = () => openFirstStepFlow(button.dataset.firstStep));
+    document.querySelectorAll('[data-complete]').forEach(button => button.onclick = () => completeTask(button.dataset.complete));
+    document.querySelectorAll('[data-edit-task]').forEach(button => button.onclick = () => openEditTask(button.dataset.editTask));
+    document.querySelectorAll('[data-delete-task]').forEach(button => button.onclick = () => openDeleteTask(button.dataset.deleteTask));
+    bindProfileButton();
+  }
+
+  function addTaskFromForm(event){
+    event.preventDefault();
+    const input = document.getElementById('taskNameInput');
+    const name = input.value.trim();
+    if(!name){ input.focus(); return; }
+    state.tasks.push({
+      id:createTaskId(), name, status:'not_started', firstStep:'', barrier:'',
+      createdAt:new Date().toISOString(), startedAt:null, completedAt:null
+    });
+    saveTasks();
+    state.announcement = 'Task added.';
+    renderHome();
+    document.getElementById('taskNameInput').focus();
+  }
+
+  function findTask(id){ return state.tasks.find(task => String(task.id) === String(id)); }
+
+  function openFirstStepFlow(id){
+    const task = findTask(id);
+    if(!task) return;
+    let selectedBarrier = task.barrier || '';
+    openModal(`
+      <form id="firstStepForm" novalidate>
+        <div class="modal-title">${task.status === 'started' ? 'Change your first step' : "What's the first thing you can actually do?"}</div>
+        <div class="modal-sub">Choose one visible action, not the whole assignment.</div>
+        <div class="task-modal-task"><span>Task</span>${escapeHtml(task.name)}</div>
+        <div class="modal-field">
+          <label for="firstStepInput">First step</label>
+          <input id="firstStepInput" type="text" maxlength="140" value="${escapeAttr(task.firstStep)}" placeholder="Example: Open the assignment and read question 1" required>
+          <div class="field-error" id="firstStepError" aria-live="polite"></div>
+        </div>
+        <button class="make-smaller-btn" id="makeSmallerBtn" type="button">Make it smaller</button>
+        <div class="small-step-hint" id="smallStepHint" role="status">Make it something you could do in a few minutes.</div>
+        <fieldset class="barrier-group">
+          <legend class="barrier-legend">What's making this hard to start? <span class="helper">(optional)</span></legend>
+          <div class="barrier-chips">
+            ${Object.entries(barrierLabels).map(([value,label]) => `<button class="barrier-chip ${selectedBarrier === value ? 'selected' : ''}" type="button" data-barrier="${value}" aria-pressed="${selectedBarrier === value}">${label}</button>`).join('')}
+          </div>
+        </fieldset>
+        <div class="barrier-suggestion" id="barrierSuggestion" role="status" aria-live="polite">${selectedBarrier ? barrierSuggestions[selectedBarrier] : ''}</div>
+        <div class="modal-actions">
+          <button class="btn btn-ghost" id="cancelFirstStep" type="button">Cancel</button>
+          <button class="btn btn-primary" type="submit">${task.status === 'started' ? 'Save first step' : 'Start with this'}</button>
+        </div>
+      </form>
+    `);
+    const input = document.getElementById('firstStepInput');
+    input.focus(); input.setSelectionRange(input.value.length, input.value.length);
+    document.getElementById('makeSmallerBtn').onclick = () => {
+      document.getElementById('smallStepHint').classList.add('show');
+      input.placeholder = 'Example: Open the worksheet';
+      input.focus();
+    };
+    document.querySelectorAll('[data-barrier]').forEach(button => {
+      button.onclick = () => {
+        selectedBarrier = selectedBarrier === button.dataset.barrier ? '' : button.dataset.barrier;
+        document.querySelectorAll('[data-barrier]').forEach(chip => {
+          const selected = chip.dataset.barrier === selectedBarrier;
+          chip.classList.toggle('selected', selected); chip.setAttribute('aria-pressed', String(selected));
+        });
+        document.getElementById('barrierSuggestion').textContent = selectedBarrier ? barrierSuggestions[selectedBarrier] : '';
+      };
+    });
+    document.getElementById('cancelFirstStep').onclick = closeModal;
+    document.getElementById('firstStepForm').onsubmit = async event => {
+      event.preventDefault();
+      const firstStep = input.value.trim();
+      if(!firstStep){ document.getElementById('firstStepError').textContent = 'Add one small action to begin.'; input.focus(); return; }
+      const firstStart = task.status !== 'started';
+      task.firstStep = firstStep;
+      task.barrier = selectedBarrier;
+      task.status = 'started';
+      task.startedAt = task.startedAt || new Date().toISOString();
+      task.completedAt = null;
+      saveTasks();
+      if(firstStart) await markTodayAction();
+      closeModal();
+      state.announcement = firstStart ? "You're moving." : 'First step updated.';
+      renderHome();
+      showToast(firstStart ? "You're moving." : 'First step updated.', 'success');
+    };
+  }
+
+  function openEditTask(id){
+    const task = findTask(id);
+    if(!task) return;
+    openModal(`
+      <form id="editTaskForm" novalidate>
+        <div class="modal-title">Edit task</div>
+        <div class="modal-sub">Keep it clear and specific.</div>
+        <div class="modal-field"><label for="editTaskName">Task name</label><input id="editTaskName" type="text" maxlength="100" value="${escapeAttr(task.name)}" required><div class="field-error" id="editTaskError" aria-live="polite"></div></div>
+        <div class="modal-actions"><button class="btn btn-ghost" id="cancelEditTask" type="button">Cancel</button><button class="btn btn-primary" type="submit">Save</button></div>
+      </form>
+    `);
+    const input = document.getElementById('editTaskName');
+    input.focus(); input.select();
+    document.getElementById('cancelEditTask').onclick = closeModal;
+    document.getElementById('editTaskForm').onsubmit = event => {
+      event.preventDefault();
+      const name = input.value.trim();
+      if(!name){ document.getElementById('editTaskError').textContent = 'Enter a task name.'; input.focus(); return; }
+      task.name = name; saveTasks(); closeModal(); state.announcement = 'Task updated.'; renderHome();
+    };
+  }
+
+  function openDeleteTask(id){
+    const task = findTask(id);
+    if(!task) return;
+    openModal(`
+      <div class="modal-title">Delete this task?</div>
+      <div class="modal-sub">This removes it from today's list.</div>
+      <div class="task-modal-task"><span>Task</span>${escapeHtml(task.name)}</div>
+      <div class="modal-actions"><button class="btn btn-ghost" id="cancelDeleteTask" type="button">Cancel</button><button class="btn task-action-delete" id="confirmDeleteTask" type="button">Delete</button></div>
+    `);
+    document.getElementById('cancelDeleteTask').onclick = closeModal;
+    document.getElementById('confirmDeleteTask').onclick = () => {
+      state.tasks = state.tasks.filter(item => item.id !== task.id);
+      saveTasks(); closeModal(); state.announcement = 'Task deleted.'; renderHome();
+    };
+  }
+
+  async function completeTask(id){
+    const task = findTask(id);
+    if(!task) return;
+    task.status = 'done'; task.completedAt = new Date().toISOString();
+    saveTasks(); await markTodayAction();
+    state.announcement = 'Done. Nice work.';
+    renderHome(); showToast('Done. Nice work.', 'success');
+  }
+
+  // ---------- legacy timer prototype (deactivated; not routed from the authenticated home) ----------
+  // Retained for possible future experimentation. The task-first flow above does not call these functions.
   // ---------- setup screen ----------
   function renderSetup(){
     const totalMins = state.tasks.reduce((a,t)=>a+t.mins,0);
@@ -814,6 +1142,9 @@
 
   function escapeHtml(str){
     const d = document.createElement('div'); d.textContent = str; return d.innerHTML;
+  }
+  function escapeAttr(str){
+    return String(str).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/'/g,'&#39;');
   }
 
   function startSession(){
@@ -999,7 +1330,7 @@
 
   async function finishSession(){
     state.screen = 'complete';
-    await markTodayComplete();
+    await markTodayAction();
     render();
   }
 
@@ -1031,17 +1362,17 @@
   // ---------- router ----------
   function render(){
     if(!auth.user){ renderLogin(); return; }
-    if(state.screen==='setup') renderSetup();
-    else if(state.screen==='ready') renderReady();
-    else if(state.screen==='running') renderRunning();
-    else if(state.screen==='overtime') renderOvertime();
-    else if(state.screen==='complete') renderComplete();
+    renderHome();
   }
 
   async function init(){
     const account = authStore.getAccount();
-    if(account && authStore.hasSession()) auth.user = account.profile;
-    await loadStreak();
+    if(account && authStore.hasSession()){
+      auth.user = account.profile;
+      loadTasks();
+      await loadStreak();
+    }
+    render();
   }
 
   init();
